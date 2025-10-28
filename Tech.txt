@@ -1,0 +1,29 @@
+FrontEnd –  React + NextJs (TypeScript)
+BackEnd – FastAPI (Python)
+AI/ML – Gemini API, Tavus.io, DeepGram, Cartesi
+Database, Storage, Auth – Supabase (SQL), Vector DB
+Tools/Frameworks - Tailwind CSS, Pipecat, PyDantic
+and many more as per the requirements …..
+
+Problem We’re Solving
+
+With the saturation of the current CS market, companies see thousands of applicants for a single job opening. This often leads to multiple resumes being outright rejected and even making it difficult for companies to shortlist out of these many candidates. The wastage of time and cost for companies is at its highest nowadays.
+
+ Candidates faces a lot of pressure while giving real interviews, especially for the first time, they can prepare for interview questions but the real interview pressure is totally different experience which hinder their performance and prevent them from reaching from their maximum performance.
+
+
+Key Features
+
+TalentLoop streamlines the interview process via human like AI agents which are contextually aware of the job opening as well as the resume of the applicant.
+Candidates will have real AI interviews featuring free-flowing voice discussions with our digital recruiter.
+ A full featured, voice-only interview, enjoy all the capabilities you need, without the avatar, and at a lower cost and at a lower internet bandwidth for slow connections.
+The avatar speaks and understands voice in 30 languages.
+The platform calculates a score that represents the fit between the candidate and your specific job position. Sentiment, voice pitch, and speech cadence are also captured for a comprehensive evaluation.
+You can instruct the avatar to ask specific questions only if certain conditions are met, enabling advanced interview workflows.
+
+BUSINESS MODEL
+
+B2B – For businesses, we aim to sell them custom priced plans as per their requirement, based on the number of candidates they want interviewed and the amount of specific data analytics they require.
+
+B2C – For candidates, we will allow them to practice on our platform based on the specific number of credits required, for example 30 min live interview practice with our agents and then give them statistics everyday, or allow them to upgrade to higher packages for longer interview times and access to more specific statistics.
+
