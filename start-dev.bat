@@ -9,7 +9,7 @@ timeout /t 3 /nobreak > nul
 
 echo.
 echo Starting Pipecat Bot (WSL)...
-start "Pipecat" wsl -e bash -lic "cd '/mnt/e/Coding Playground/QuantumHex/AI Avatar Interview Website/pipecat-quickstart' && uv sync && uv run bot.py"
+start "Pipecat" wt wsl -e bash -lic "cd '/mnt/c/projects/interviewai/TalentLoop/pipecat-quickstart' && uv sync && uv run bot.py"
 
 timeout /t 5 /nobreak > nul
 
