@@ -1,8 +1,5 @@
-from supabase import create_client
+from supabase_client import supabase
 from generate_embeddings import get_embedding
-from config import SUPABASE_URL, SUPABASE_KEY
-
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def get_relevant_context(query: str, limit: int = 5):
     query_emb = get_embedding(query)

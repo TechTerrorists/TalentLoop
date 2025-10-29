@@ -45,9 +45,9 @@ def getAllJobs(company_id:int):
         return result.data
     raise HTTPException(status_code=500, detail="something went wrong when getting jobs")
 
-@router.get("/",response_model=JobResponse)
+@router.get("/job/{jobid}",response_model=JobResponse)
 def getJob(jobid:int):
     result=supabase.table(tablename).select("*").eq("_id",jobid).execute()
     if(result.data):
         return result.data[0]
-    raise HTTPException(status_code=500, detail="something went wrong when getting a job")
+    raise HTTPException(status_code=404, detail="Job not found")
