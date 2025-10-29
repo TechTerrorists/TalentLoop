@@ -18,8 +18,8 @@ export default function Home() {
       };
       
       const newSession = await interviewAPI.createInterview(config);
-      setSession(newSession);
-      await interviewAPI.startInterview(newSession.id);
+      const startResponse = await interviewAPI.startInterview(newSession.id);
+      setSession({...newSession, bot_url: startResponse.bot_url, status: 'in_progress'});
     } catch (error) {
       console.error('Failed to start interview:', error);
     } finally {
@@ -71,11 +71,18 @@ export default function Home() {
                 <p>Session ID: {session.id}</p>
                 <p>Status: <span className="capitalize font-medium">{session.status}</span></p>
                 <p>Position: {session.job_position}</p>
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 mt-6">
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Interview interface will be integrated here with Pipecat WebRTC connection
-                  </p>
-                </div>
+                {session.bot_url && (
+                  <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-6 mt-6">
+                    <p className="font-semibold mb-2">Pipecat Bot Ready</p>
+                    <a href={session.bot_url} target="_blank" rel="noopener noreferrer" 
+                       className="text-blue-600 dark:text-blue-300 hover:underline">
+                      {session.bot_url}
+                    </a>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                      Click to connect to your AI interviewer
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}

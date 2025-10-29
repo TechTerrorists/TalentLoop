@@ -74,10 +74,25 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         model="gemini-2.5-flash"
     )
 
+    # Get interview context from environment or use default
+    job_position = os.getenv("INTERVIEW_JOB_POSITION", "Software Engineer")
+    required_skills = os.getenv("INTERVIEW_SKILLS", "JavaScript, React, Node.js")
+    
     messages = [
         {
             "role": "system",
-            "content": "You are a friendly AI assistant. Respond naturally and keep your answers conversational.",
+            "content": f"""You are an AI interviewer conducting a technical interview for a {job_position} position.
+            
+Required skills: {required_skills}
+            
+Your role:
+            - Ask relevant technical questions about the required skills
+            - Evaluate the candidate's responses
+            - Be professional but friendly
+            - Ask follow-up questions based on their answers
+            - Keep questions concise and clear
+            
+Start by introducing yourself and asking about their experience.""",
         },
     ]
 
@@ -112,12 +127,14 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     async def on_client_connected(transport, client):
         logger.info(f"Client connected")
         # Kick off the conversation.
-        messages.append({"role": "system", "content": "Say hello and briefly introduce yourself."})
+        messages.append({"role": "system", "content": "Greet the candidate and start the interview."})
         await task.queue_frames([LLMRunFrame()])
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
         logger.info(f"Client disconnected")
+        # Save interview transcript to backend
+        logger.info(f"Interview transcript: {messages}")
         await task.cancel()
 
     runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)
