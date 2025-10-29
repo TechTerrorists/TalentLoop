@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
 from app.core.config import settings
-
+from app.api.jobroute import router as job_router 
 app = FastAPI(
     title="AI Avatar Interview API",
     description="Backend API for AI-powered interview system",
@@ -20,7 +20,7 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(router, prefix="/api/v1")
-
+app.include_router(job_router, prefix="/jobs", tags=["Jobs"])
 @app.get("/")
 async def root():
     return {"message": "AI Avatar Interview API is running"}

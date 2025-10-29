@@ -3,8 +3,8 @@ from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 class Recommondation(str,Enum):
-    "Recommonded"
-    "Not Recommonded"
+    Recommonded="Recommonded"
+    Not_Recommoned="Not Recommonded"
 class ReportCreate(BaseModel):
     interview_id:int
     overallscore:int
