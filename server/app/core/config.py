@@ -5,9 +5,10 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Avatar Interview System"
     
     # AI Services
-    GEMINI_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
     DEEPGRAM_API_KEY: str = ""
-    ELEVENLABS_API_KEY: str = ""
+    CARTESIA_API_KEY: str = ""
+    TAVUS_API_KEY: str = ""
     
     # Database
     SUPABASE_URL: str = ""
