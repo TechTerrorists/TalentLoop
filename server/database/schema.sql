@@ -21,6 +21,17 @@ CREATE TABLE "Company" (
     industry VARCHAR(100)
 );
 
+CREATE TABLE IF NOT EXISTS ai_context (
+  id bigserial PRIMARY KEY,
+  source text NOT NULL,
+  source_id bigint NOT NULL,
+  content text NOT NULL,
+  embedding vector(1536) NOT NULL 
+); 
+CREATE index on ai_context
+using ivfflat (embedding vector_cosine_ops)
+with (lists = 100);
+
 -- Job Table
 CREATE TABLE "Job" (
     _id SERIAL PRIMARY KEY,
