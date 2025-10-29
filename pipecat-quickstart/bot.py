@@ -90,31 +90,27 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         api_key=os.getenv("GOOGLE_API_KEY"),
         model="gemini-2.5-flash"
     )
+#     candidate_name = "John Doe"
+#     company_name = "StartupXYZ"
+#     job_title = "Full Stack Developer"
 
-    query = ""
-    rag_context = await fetch_rag_context(query)
-
-    # Get interview context from environment or use default
-#     job_position = os.getenv("INTERVIEW_JOB_POSITION", "Software Engineer")
-#     required_skills = os.getenv("INTERVIEW_SKILLS", "JavaScript, React, Node.js")
-    
+#     query = f"""
+#     Relevant interview context for candidate '{candidate_name}' applying for '{job_title}' at '{company_name}'.
+#     Include details from the candidate's resume, job description, company profile, and any relevant skills or requirements.
+#     """
+#     rag_context = await fetch_rag_context(query)
 #     messages = [
-#         {
-#             "role": "system",
-#             "content": f"""You are an AI interviewer conducting a technical interview for a {job_position} position.
-            
-# Required skills: {required_skills}
-            
-# Your role:
-#             - Ask relevant technical questions about the required skills
-#             - Evaluate the candidate's responses
-#             - Be professional but friendly
-#             - Ask follow-up questions based on their answers
-#             - Keep questions concise and clear
-            
-# Start by introducing yourself and asking about their experience.""",
-#         },
-#     ]
+#     {
+#         "role": "system",
+#         "content": f"""You are an AI interviewer for {company_name}, conducting a technical interview for a {job_title} position.
+# Use the following context to guide your questions:
+
+# {rag_context}
+
+# Greet the candidate and begin the interview politely.""",
+#     }
+# ]
+    messages = []
 
     context = LLMContext(messages)
     context_aggregator = LLMContextAggregatorPair(context)
@@ -148,10 +144,29 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         logger.info(f"Client connected")
         # Kick off the conversation.
 
-        #Fetch context
-        
-        messages.append({"role": "system", "content": "Greet the candidate and start the interview."})
-        await task.queue_frames([LLMRunFrame()])
+    candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
+    company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
+    job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
+
+        # Fetch RAG context dynamically
+    query = f"""
+        Relevant interview context for candidate '{candidate_name}' applying for '{job_title}' at '{company_name}'.
+        Include details from the candidate's resume, job description, company profile, and any relevant skills or requirements.
+        """
+    rag_context = await fetch_rag_context(query)
+
+        # Set system prompt with fetched context
+    system_prompt = f"""
+        You are an AI interviewer for {company_name}, conducting a technical interview for a {job_title} position.
+        Use the following context to guide your questions:
+
+        {rag_context}
+
+        Greet the candidate {candidate_name} and begin the interview politely. Ask one question at a time.
+        """
+    messages.clear()
+    messages.append({"role": "system", "content": system_prompt})
+    await task.queue_frames([LLMRunFrame()])
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):

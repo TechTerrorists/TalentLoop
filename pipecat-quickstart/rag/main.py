@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-from rag.query_embeddings import get_relevant_context
-from rag.sync_to_vectordb import sync_rag_table
+from query_embeddings import get_relevant_context
+from sync_to_vectordb import sync_rag_table
 
 app = FastAPI(title="TalentLoop RAG Backend")
 
