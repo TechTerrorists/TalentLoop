@@ -20,7 +20,7 @@ Run the bot using::
 """
 
 import os
-
+import aiohttp
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -58,6 +58,23 @@ logger.info("✅ All components loaded successfully!")
 
 load_dotenv(override=True)
 
+async def fetch_rag_context(query: str) -> str:
+    """Fetch relevant context from your FastAPI RAG service."""
+    rag_url = os.getenv("RAG_API_URL")
+    if not rag_url:
+        return ""
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(rag_url, params={"query": query, "limit": 3}) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    contents = [r.get("content", "") for r in data.get("results", [])]
+                    return "\n\n".join(contents)
+    except Exception as e:
+        print(f"[RAG fetch failed] {e}")
+    return ""
+
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
@@ -74,27 +91,30 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         model="gemini-2.5-flash"
     )
 
+    query = ""
+    rag_context = await fetch_rag_context(query)
+
     # Get interview context from environment or use default
-    job_position = os.getenv("INTERVIEW_JOB_POSITION", "Software Engineer")
-    required_skills = os.getenv("INTERVIEW_SKILLS", "JavaScript, React, Node.js")
+#     job_position = os.getenv("INTERVIEW_JOB_POSITION", "Software Engineer")
+#     required_skills = os.getenv("INTERVIEW_SKILLS", "JavaScript, React, Node.js")
     
-    messages = [
-        {
-            "role": "system",
-            "content": f"""You are an AI interviewer conducting a technical interview for a {job_position} position.
+#     messages = [
+#         {
+#             "role": "system",
+#             "content": f"""You are an AI interviewer conducting a technical interview for a {job_position} position.
             
-Required skills: {required_skills}
+# Required skills: {required_skills}
             
-Your role:
-            - Ask relevant technical questions about the required skills
-            - Evaluate the candidate's responses
-            - Be professional but friendly
-            - Ask follow-up questions based on their answers
-            - Keep questions concise and clear
+# Your role:
+#             - Ask relevant technical questions about the required skills
+#             - Evaluate the candidate's responses
+#             - Be professional but friendly
+#             - Ask follow-up questions based on their answers
+#             - Keep questions concise and clear
             
-Start by introducing yourself and asking about their experience.""",
-        },
-    ]
+# Start by introducing yourself and asking about their experience.""",
+#         },
+#     ]
 
     context = LLMContext(messages)
     context_aggregator = LLMContextAggregatorPair(context)
@@ -127,6 +147,9 @@ Start by introducing yourself and asking about their experience.""",
     async def on_client_connected(transport, client):
         logger.info(f"Client connected")
         # Kick off the conversation.
+
+        #Fetch context
+        
         messages.append({"role": "system", "content": "Greet the candidate and start the interview."})
         await task.queue_frames([LLMRunFrame()])
 
