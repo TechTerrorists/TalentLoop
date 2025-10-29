@@ -105,8 +105,8 @@ export default function Home() {
               <div className="text-center space-y-4">
                 <p>Session ID: {session.id}</p>
                 <p>Status: <span className="capitalize font-medium">{session.status}</span></p>
-                <p>Position: {session.job_position}</p>
-                {session.bot_url && (
+                <p>Job ID: {session.job_id}</p>
+                {session.bot_url ? (
                   <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-6 mt-6">
                     <p className="font-semibold mb-2">Pipecat Bot Ready</p>
                     <a href={session.bot_url} target="_blank" rel="noopener noreferrer" 
@@ -115,6 +115,12 @@ export default function Home() {
                     </a>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
                       Click to connect to your AI interviewer
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-6 mt-6">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Bot URL not available yet. Please wait...
                     </p>
                   </div>
                 )}

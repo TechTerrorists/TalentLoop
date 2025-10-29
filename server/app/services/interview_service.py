@@ -59,7 +59,15 @@ class InterviewService:
         }
         
         bot_info = await self.pipecat_service.start_bot(session_id, bot_config)
-        session.bot_url = bot_info.get("bot_url")
+        bot_url = bot_info.get("bot_url")
+        
+        if supabase:
+            supabase.table("interview").update({
+                "bot_url": bot_url
+            }).eq("id", session_id).execute()
+        else:
+            session.bot_url = bot_url
+        
         return True
     
     async def end_session(self, session_id: int) -> bool:
