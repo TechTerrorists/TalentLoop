@@ -5,7 +5,7 @@ A comprehensive interview platform using AI avatars with real-time voice interac
 ## Tech Stack
 
 ### Frontend
-- **Next.js 16** with TypeScript
+- **Next.js 16** with React, JavaScript and TypeScript
 - **Tailwind CSS** for styling
 - **WebRTC** for real-time communication
 
