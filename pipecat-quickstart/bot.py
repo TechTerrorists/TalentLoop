@@ -51,6 +51,7 @@ from pipecat.runner.utils import create_transport
 from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
 from pipecat.services.google.llm import GoogleLLMService
+from pipecat.services.tavus.video import TavusVideoService
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.daily.transport import DailyParams
 
@@ -78,18 +79,25 @@ async def fetch_rag_context(query: str) -> str:
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
+    
+    async with aiohttp.ClientSession() as session:
+        stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
 
-    stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
+        tts = CartesiaTTSService(
+            api_key=os.getenv("CARTESIA_API_KEY"),
+            voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",
+        )
 
-    tts = CartesiaTTSService(
-        api_key=os.getenv("CARTESIA_API_KEY"),
-        voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",  # British Reading Lady
-    )
+        llm = GoogleLLMService(
+            api_key=os.getenv("GOOGLE_API_KEY"),
+            model="gemini-2.5-flash"
+        )
 
-    llm = GoogleLLMService(
-        api_key=os.getenv("GOOGLE_API_KEY"),
-        model="gemini-2.5-flash"
-    )
+        tavus = TavusVideoService(
+            api_key=os.getenv("TAVUS_API_KEY"),
+            replica_id=os.getenv("TAVUS_REPLICA_ID"),
+            session=session,
+        )
 #     candidate_name = "John Doe"
 #     company_name = "StartupXYZ"
 #     job_title = "Full Stack Developer"
@@ -99,78 +107,80 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 #     Include details from the candidate's resume, job description, company profile, and any relevant skills or requirements.
 #     """
 #     rag_context = await fetch_rag_context(query)
-    messages = [
-        {
-            "role": "system",
-            "content": "You are an AI interviewer. Waiting for interview context..."
-        }
-    ]
-
-    context = LLMContext(messages)
-    context_aggregator = LLMContextAggregatorPair(context)
-
-    rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
-
-    pipeline = Pipeline(
-        [
-            transport.input(),  # Transport user input
-            rtvi,  # RTVI processor
-            stt,
-            context_aggregator.user(),  # User responses
-            llm,  # LLM
-            tts,  # TTS
-            transport.output(),  # Transport bot output
-            context_aggregator.assistant(),  # Assistant spoken responses
+        messages = [
+            {
+                "role": "system",
+                "content": "You are an AI interviewer. Waiting for interview context..."
+            }
         ]
-    )
 
-    task = PipelineTask(
-        pipeline,
-        params=PipelineParams(
-            enable_metrics=True,
-            enable_usage_metrics=True,
-        ),
-        observers=[RTVIObserver(rtvi)],
-    )
+        context = LLMContext(messages)
+        context_aggregator = LLMContextAggregatorPair(context)
 
-    @transport.event_handler("on_client_connected")
-    async def on_client_connected(transport, client):
-        logger.info(f"Client connected")
-        
-        candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
-        company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
-        job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
+        rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
 
-        # Fetch RAG context dynamically
-        query = f"""
-        Relevant interview context for candidate '{candidate_name}' applying for '{job_title}' at '{company_name}'.
-        Include details from the candidate's resume, job description, company profile, and any relevant skills or requirements.
-        """
-        rag_context = await fetch_rag_context(query)
+        pipeline = Pipeline(
+            [
+                transport.input(),
+                rtvi,
+                stt,
+                context_aggregator.user(),
+                llm,
+                tts,
+                tavus,
+                transport.output(),
+                context_aggregator.assistant(),
+            ]
+        )
 
-        # Set system prompt with fetched context
-        system_prompt = f"""
-        You are an AI interviewer for {company_name}, conducting a technical interview for a {job_title} position.
-        Use the following context to guide your questions:
+        task = PipelineTask(
+            pipeline,
+            params=PipelineParams(
+                audio_in_sample_rate=16000,
+                audio_out_sample_rate=24000,
+                enable_metrics=True,
+                enable_usage_metrics=True,
+            ),
+            observers=[RTVIObserver(rtvi)],
+        )
 
-        {rag_context}
+        @transport.event_handler("on_client_connected")
+        async def on_client_connected(transport, client):
+            logger.info(f"Client connected")
+            
+            candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
+            company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
+            job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
 
-        Greet the candidate {candidate_name} and begin the interview politely. Ask one question at a time.
-        """
-        messages.clear()
-        messages.append({"role": "system", "content": system_prompt})
-        await task.queue_frames([LLMRunFrame()])
+            # Fetch RAG context dynamically
+            query = f"""
+            Relevant interview context for candidate '{candidate_name}' applying for '{job_title}' at '{company_name}'.
+            Include details from the candidate's resume, job description, company profile, and any relevant skills or requirements.
+            """
+            rag_context = await fetch_rag_context(query)
 
-    @transport.event_handler("on_client_disconnected")
-    async def on_client_disconnected(transport, client):
-        logger.info(f"Client disconnected")
-        # Save interview transcript to backend
-        logger.info(f"Interview transcript: {messages}")
-        await task.cancel()
+            # Set system prompt with fetched context
+            system_prompt = f"""
+            You are an AI interviewer for {company_name}, conducting a technical interview for a {job_title} position.
+            Use the following context to guide your questions:
 
-    runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)
+            {rag_context}
 
-    await runner.run(task)
+            Greet the candidate {candidate_name} and begin the interview politely. Ask one question at a time.
+            """
+            messages.clear()
+            messages.append({"role": "system", "content": system_prompt})
+            await task.queue_frames([LLMRunFrame()])
+
+        @transport.event_handler("on_client_disconnected")
+        async def on_client_disconnected(transport, client):
+            logger.info(f"Client disconnected")
+            logger.info(f"Interview transcript: {messages}")
+            await task.cancel()
+
+        runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)
+
+        await runner.run(task)
 
 
 async def bot(runner_args: RunnerArguments):
@@ -180,12 +190,20 @@ async def bot(runner_args: RunnerArguments):
         "daily": lambda: DailyParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
+            video_out_enabled=True,
+            video_out_is_live=True,
+            video_out_width=1280,
+            video_out_height=720,
             vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
             turn_analyzer=LocalSmartTurnAnalyzerV3(),
         ),
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
+            video_out_enabled=True,
+            video_out_is_live=True,
+            video_out_width=1280,
+            video_out_height=720,
             vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
             turn_analyzer=LocalSmartTurnAnalyzerV3(),
         ),
