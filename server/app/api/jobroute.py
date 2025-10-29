@@ -3,7 +3,6 @@ from app.core.database import supabase
 from typing import List
 from app.models.jobs_models import JobRequestBody,JobResponse,checkenum
 router=APIRouter()
-
 tablename="Job"
 @router.post("/add-job",response_model=JobResponse)
 async def addJob(request:JobRequestBody):

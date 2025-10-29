@@ -16,7 +16,11 @@ class CompanyCreate(CompanyRequestBody):
 class CompanyLogin(BaseModel):
     email:str
     password:str
-    
+class UpdateCompany(BaseModel):
+    name:str
+    description:Optional[str]
+    industry:Optional[str]
+    email:str
 class CompanyResponse(BaseModel):
     _id:int
     name:str
