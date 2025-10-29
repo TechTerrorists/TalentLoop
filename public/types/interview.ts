@@ -12,3 +12,26 @@ export interface InterviewConfig {
   language: string;
   avatar_enabled: boolean;
 }
+
+export interface InterviewScore {
+  overallScore: number;
+  technicalScore: number;
+  communicationScore: number;
+  confidenceScore: number;
+  sentimentAnalysis: Record<string, any>;
+  voiceAnalysis: Record<string, any>;
+}
+
+export interface InterviewResult {
+  sessionId: string;
+  score: InterviewScore;
+  transcript: string;
+  feedback: string;
+  recommendations: string[];
+}
+
+export interface WebRTCRoom {
+  roomId: string;
+  roomUrl: string;
+  token: string;
+}

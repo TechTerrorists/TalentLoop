@@ -1,17 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { interviewAPI } from '../lib/api';
-import { InterviewConfig, InterviewSession } from '../types/interview';
+import { interviewAPI } from '../lib/api.js';
 
 export default function Home() {
-  const [session, setSession] = useState<InterviewSession | null>(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const startInterview = async () => {
     setLoading(true);
     try {
-      const config: InterviewConfig = {
+      const config = {
         job_description: "Software Engineer Position",
         required_skills: ["JavaScript", "React", "Node.js"],
         language: "en",
