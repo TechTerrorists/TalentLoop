@@ -18,7 +18,7 @@ class CompanyLogin(BaseModel):
     password:str
     
 class CompanyResponse(BaseModel):
-    id:int
+    _id:int
     name:str
     description:Optional[str]
     industry:Optional[str]

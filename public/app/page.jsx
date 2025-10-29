@@ -1,18 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { interviewAPI } from '../lib/api.js';
 
 export default function Home() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [interviews, setInterviews] = useState([]);
+
+  useEffect(() => {
+    loadInterviews();
+  }, []);
+
+  const loadInterviews = async () => {
+    try {
+      const data = await interviewAPI.listInterviews();
+      setInterviews(data);
+    } catch (error) {
+      console.error('Failed to load interviews:', error);
+    }
+  };
 
   const startInterview = async () => {
     setLoading(true);
     try {
       const config = {
-        job_description: "Software Engineer Position",
-        required_skills: ["JavaScript", "React", "Node.js"],
+        candidate_id: 1,
+        company_id: 1,
+        job_id: 1,
         language: "en",
         avatar_enabled: true
       };
@@ -40,6 +55,26 @@ export default function Home() {
         </div>
 
         <div className="max-w-4xl mx-auto">
+          {interviews.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-4">Recent Interviews</h2>
+              <div className="space-y-2">
+                {interviews.slice(0, 5).map((interview) => (
+                  <div key={interview.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                    <div>
+                      <span className="font-medium">Interview #{interview.id}</span>
+                      <span className="ml-4 text-sm text-gray-600 dark:text-gray-300">
+                        Status: {interview.status}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      {new Date(interview.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {!session ? (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-semibold mb-6 text-center">Ready to Start Your Interview?</h2>

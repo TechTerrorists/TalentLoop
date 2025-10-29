@@ -10,6 +10,11 @@ const api = axios.create({
 });
 
 export const interviewAPI = {
+  listInterviews: async () => {
+    const response = await api.get('/interviews/');
+    return response.data;
+  },
+
   createInterview: async (config) => {
     const response = await api.post('/interviews/', config);
     return response.data;

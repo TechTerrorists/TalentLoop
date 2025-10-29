@@ -1,28 +1,37 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime
 from enum import Enum
 
 class InterviewStatus(str, Enum):
-    SCHEDULED = "scheduled"
+    PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
 
-class InterviewType(str, Enum):
-    PRACTICE = "practice"
-    REAL = "real"
-    VOICE_ONLY = "voice_only"
-
-class InterviewSession(BaseModel):
-    id: Optional[str] = None
-    candidate_id: str
-    job_position: str
-    interview_type: InterviewType
-    status: InterviewStatus = InterviewStatus.SCHEDULED
+class Interview(BaseModel):
+    id: Optional[int] = None
+    candidate_id: int
+    company_id: int
+    job_id: int
+    status: str = "pending"
+    Schedule_Date: Optional[datetime] = None
+    createdAt: Optional[datetime] = None
+    updatedAt: Optional[datetime] = None
     bot_url: Optional[str] = None
-    
-class InterviewConfig(BaseModel):
-    job_description: str
-    required_skills: List[str]
+
+class InterviewCreate(BaseModel):
+    candidate_id: int
+    company_id: int
+    job_id: int
     language: str = "en"
     avatar_enabled: bool = True
+
+class InterviewResponse(BaseModel):
+    id: int
+    candidate_id: int
+    company_id: int
+    job_id: int
+    status: str
+    Schedule_Date: Optional[datetime] = None
+    createdAt: Optional[datetime] = None
+    bot_url: Optional[str] = None

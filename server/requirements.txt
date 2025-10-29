@@ -1,22 +1,24 @@
 # FastAPI and core dependencies
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
-websockets==12.0
+fastapi==0.116.1
+uvicorn==0.37.0
+python-multipart==0.0.20
+websockets==15.0.1
 
 # Pipecat for AI conversation
-pipecat-ai==0.0.45
+# pipecat-ai==0.0.45
 
 # AI/ML services
-google-generativeai==0.3.2
-deepgram-sdk==3.2.7
-elevenlabs==0.2.26
+# google-generativeai==0.3.2
+# deepgram-sdk==3.2.7
+# elevenlabs==0.2.26
 
 # Database
-supabase==2.0.2
-asyncpg==0.29.0
+supabase==2.18.1
+# asyncpg==0.29.0
 
-# Utilities
-pydantic==2.5.0
+# Utilities          
+pydantic==2.11.7
+pydantic-settings==2.11.0
+pydantic_core==2.33.2
 python-dotenv==1.0.0
-httpx==0.25.2
+httpx==0.28.1

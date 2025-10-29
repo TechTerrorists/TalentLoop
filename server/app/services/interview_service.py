@@ -1,54 +1,111 @@
 import asyncio
 from typing import Optional
-from app.models.interview import InterviewSession, InterviewConfig
+from datetime import datetime
+from app.models.interview import Interview, InterviewCreate
+from app.models.report import ReportCreate, skillscore
 from app.services.pipecat_service import PipecatService
+from app.core.database import supabase
 
 class InterviewService:
     def __init__(self):
-        self.active_sessions = {}
         self.pipecat_service = PipecatService()
+        self.sessions = {}
     
-    async def create_session(self, config: InterviewConfig) -> InterviewSession:
+    async def create_session(self, config: InterviewCreate) -> Interview:
         """Create a new interview session"""
-        session = InterviewSession(
-            id=f"session_{len(self.active_sessions) + 1}",
-            candidate_id="candidate_1",  # TODO: Get from auth
-            job_position=config.job_description[:50],
-            interview_type="practice",
-            status="scheduled"
-        )
+        if supabase:
+            result = supabase.table("interview").insert({
+                "candidate_id": config.candidate_id,
+                "company_id": config.company_id,
+                "job_id": config.job_id,
+                "status": "pending",
+                "Schedule_Date": datetime.now().isoformat()
+            }).execute()
+            data = result.data[0]
+            return Interview(**data)
         
-        self.active_sessions[session.id] = session
+        # Fallback to in-memory
+        session_id = len(self.sessions) + 1
+        session = Interview(
+            id=session_id,
+            candidate_id=config.candidate_id,
+            company_id=config.company_id,
+            job_id=config.job_id,
+            status="pending",
+            createdAt=datetime.now()
+        )
+        self.sessions[session_id] = session
         return session
     
-    async def start_session(self, session_id: str) -> bool:
+    async def start_session(self, session_id: int) -> bool:
         """Start an interview session"""
-        if session_id in self.active_sessions:
-            session = self.active_sessions[session_id]
+        session = self.get_session(session_id)
+        if not session:
+            return False
+        
+        if supabase:
+            supabase.table("interview").update({
+                "status": "in_progress",
+                "updatedAt": datetime.now().isoformat()
+            }).eq("id", session_id).execute()
+        else:
             session.status = "in_progress"
-            
-            # Prepare bot config from session
-            bot_config = {
-                "job_position": session.job_position,
-                "required_skills": [],  # Extract from session if stored
-                "language": "en"
-            }
-            
-            # Start Pipecat bot with interview context
-            bot_info = await self.pipecat_service.start_bot(session_id, bot_config)
-            session.bot_url = bot_info.get("bot_url")
-            return True
-        return False
+            session.updatedAt = datetime.now()
+        
+        bot_config = {
+            "job_id": session.job_id,
+            "company_id": session.company_id,
+            "language": "en"
+        }
+        
+        bot_info = await self.pipecat_service.start_bot(session_id, bot_config)
+        session.bot_url = bot_info.get("bot_url")
+        return True
     
-    async def end_session(self, session_id: str) -> bool:
+    async def end_session(self, session_id: int) -> bool:
         """End an interview session"""
-        if session_id in self.active_sessions:
-            self.active_sessions[session_id].status = "completed"
-            # Stop Pipecat bot
-            await self.pipecat_service.stop_bot(session_id)
-            return True
-        return False
+        if supabase:
+            supabase.table("interview").update({
+                "status": "completed",
+                "updatedAt": datetime.now().isoformat()
+            }).eq("id", session_id).execute()
+        
+        await self.pipecat_service.stop_bot(session_id)
+        return True
     
-    def get_session(self, session_id: str) -> Optional[InterviewSession]:
+    def get_session(self, session_id: int) -> Optional[Interview]:
         """Get session by ID"""
-        return self.active_sessions.get(session_id)
+        if not supabase:
+            return self.sessions.get(session_id)
+        result = supabase.table("interview").select("*").eq("id", session_id).execute()
+        if result.data:
+            return Interview(**result.data[0])
+        return None
+    
+    def list_all_sessions(self):
+        """List all interview sessions"""
+        if not supabase:
+            return list(self.sessions.values())
+        result = supabase.table("interview").select("*").execute()
+        return result.data if result.data else []
+    
+    async def create_report(self, interview_id: int, transcript: str) -> ReportCreate:
+        """Create interview report with scores"""
+        if supabase:
+            result = supabase.table("Report").insert({
+                "interview_id": interview_id,
+                "overallscore": 0,
+                "recommondation": "Analysis pending",
+                "feedback": "Interview completed",
+                "transcripturl": None,
+                "createdAt": datetime.now().isoformat()
+            }).execute()
+            return ReportCreate(**result.data[0])
+        
+        return ReportCreate(
+            interview_id=interview_id,
+            overallscore=0,
+            recommondation="Not Recommonded",
+            feedback="Interview completed",
+            createdAt=datetime.now()
+        )

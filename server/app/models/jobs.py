@@ -17,7 +17,7 @@ class CreateJob(JobRequestBody):
     updatedAt:Optional[datetime]=None
     
 class JobResponse(BaseModel):
-    id:int
+    _id:int
     title:str
     description:str
     status:Status="Pending"
