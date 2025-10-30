@@ -1,132 +1,102 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { interviewAPI } from '../lib/api.js';
-
 export default function Home() {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [interviews, setInterviews] = useState([]);
-
-  useEffect(() => {
-    loadInterviews();
-  }, []);
-
-  const loadInterviews = async () => {
-    try {
-      const data = await interviewAPI.listInterviews();
-      setInterviews(data);
-    } catch (error) {
-      console.error('Failed to load interviews:', error);
-    }
-  };
-
-  const startInterview = async () => {
-    setLoading(true);
-    try {
-      const config = {
-        candidate_id: 1,
-        company_id: 1,
-        job_id: 1,
-        language: "en",
-        avatar_enabled: true
-      };
-      
-      const newSession = await interviewAPI.createInterview(config);
-      const startResponse = await interviewAPI.startInterview(newSession.id);
-      setSession({...newSession, bot_url: startResponse.bot_url, status: 'in_progress'});
-    } catch (error) {
-      console.error('Failed to start interview:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            AI Avatar Interview System
+    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#D9EAFD] to-[#BCCCDC]">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <h1 className="text-6xl font-bold text-gray-800 mb-6">
+            Welcome to <span className="text-gray-800">TalentLoop</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Practice interviews with our AI-powered avatar. Get real-time feedback and improve your skills.
+          <p className="text-2xl text-gray-700 max-w-3xl mx-auto mb-8">
+            Transform your interview experience with AI-powered avatar technology.
+            Practice, improve, and ace your next interview.
           </p>
+          <div className="flex justify-center gap-4">
+            <a
+              href="/dashboard"
+              className="bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg"
+            >
+              Get Started
+            </a>
+            <button className="bg-[#F8FAFC] hover:bg-[#D9EAFD] text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg border border-[#BCCCDC]">
+              Learn More
+            </button>
+          </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          {interviews.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-4">Recent Interviews</h2>
-              <div className="space-y-2">
-                {interviews.slice(0, 5).map((interview) => (
-                  <div key={interview.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
-                    <div>
-                      <span className="font-medium">Interview #{interview.id}</span>
-                      <span className="ml-4 text-sm text-gray-600 dark:text-gray-300">
-                        Status: {interview.status}
-                      </span>
-                    </div>
-                    <span className="text-sm text-gray-500">
-                      {new Date(interview.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-20">
+          <div className="bg-[#F8FAFC] rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+            <div className="w-14 h-14 bg-[#D9EAFD] rounded-lg flex items-center justify-center mb-6">
+              <svg className="w-8 h-8 text-[#9AA6B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
             </div>
-          )}
-          {!session ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Ready to Start Your Interview?</h2>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Features:</h3>
-                  <ul className="space-y-2 text-gray-600 dark:text-gray-300">
-                    <li>• Real-time AI conversation</li>
-                    <li>• Voice recognition & synthesis</li>
-                    <li>• Comprehensive scoring</li>
-                    <li>• Multi-language support</li>
-                  </ul>
-                </div>
-                <div className="flex items-center justify-center">
-                  <button
-                    onClick={startInterview}
-                    disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
-                  >
-                    {loading ? 'Starting...' : 'Start Interview'}
-                  </button>
-                </div>
-              </div>
+            <h3 className="text-xl font-bold mb-4 text-gray-800">AI Avatar Interviews</h3>
+            <p className="text-gray-700">
+              Practice with realistic AI-powered avatars that simulate real interview scenarios with natural conversation flow.
+            </p>
+          </div>
+
+          <div className="bg-[#F8FAFC] rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+            <div className="w-14 h-14 bg-[#D9EAFD] rounded-lg flex items-center justify-center mb-6">
+              <svg className="w-8 h-8 text-[#9AA6B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
             </div>
-          ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Interview Session</h2>
-              <div className="text-center space-y-4">
-                <p>Session ID: {session.id}</p>
-                <p>Status: <span className="capitalize font-medium">{session.status}</span></p>
-                <p>Job ID: {session.job_id}</p>
-                {session.bot_url ? (
-                  <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-6 mt-6">
-                    <p className="font-semibold mb-2">Pipecat Bot Ready</p>
-                    <a href={session.bot_url} target="_blank" rel="noopener noreferrer" 
-                       className="text-blue-600 dark:text-blue-300 hover:underline">
-                      {session.bot_url}
-                    </a>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                      Click to connect to your AI interviewer
-                    </p>
-                  </div>
-                ) : (
-                  <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-6 mt-6">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Bot URL not available yet. Please wait...
-                    </p>
-                  </div>
-                )}
-              </div>
+            <h3 className="text-xl font-bold mb-4 text-gray-800">Real-Time Feedback</h3>
+            <p className="text-gray-700">
+              Get instant, comprehensive feedback and scoring to help you improve your interview performance immediately.
+            </p>
+          </div>
+
+          <div className="bg-[#F8FAFC] rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+            <div className="w-14 h-14 bg-[#D9EAFD] rounded-lg flex items-center justify-center mb-6">
+              <svg className="w-8 h-8 text-[#9AA6B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
             </div>
-          )}
+            <h3 className="text-xl font-bold mb-4 text-gray-800">Multi-Language Support</h3>
+            <p className="text-gray-700">
+              Practice interviews in multiple languages with voice recognition and synthesis capabilities.
+            </p>
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="mt-24 bg-[#F8FAFC] rounded-2xl shadow-xl p-12">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-4xl font-bold text-gray-800 mb-2">10,000+</div>
+              <div className="text-gray-700">Interviews Conducted</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-gray-800 mb-2">95%</div>
+              <div className="text-gray-700">Success Rate</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-gray-800 mb-2">24/7</div>
+              <div className="text-gray-700">Available</div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="mt-24 text-center">
+          <h2 className="text-4xl font-bold text-gray-800 mb-6">
+            Ready to Ace Your Next Interview?
+          </h2>
+          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+            Join thousands of successful candidates who have improved their interview skills with TalentLoop.
+          </p>
+          <a
+            href="/dashboard"
+            className="inline-block bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-12 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg"
+          >
+            Start Your First Interview
+          </a>
         </div>
       </div>
     </div>
