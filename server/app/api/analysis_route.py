@@ -57,8 +57,9 @@ async def analyze_interview(
         skill_score_records = [
             {
                 "skill": skill.skill,
-                "report_id": report_id,
-                "score": skill.score
+                "interview_id": request.interview_id,
+                "score": skill.score,
+                "evidence": skill.evidence
             }
             for skill in analysis.skill_scores
         ]

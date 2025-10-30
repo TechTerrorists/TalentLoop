@@ -1,9 +1,12 @@
+"use server";
 import InterviewAnalytics from "../../../components/InterviewAnalytics";
 
-export default function AnalyticsPage({ params }) {
+export default async function AnalyticsPage({ params }) {
+  const { interviewId } = await params;
+
   return (
     <div className="container mx-auto py-8">
-      <InterviewAnalytics interviewId={params.interviewId} />
+      <InterviewAnalytics interviewId={interviewId} />
     </div>
   );
 }

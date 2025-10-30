@@ -121,10 +121,11 @@ CREATE TABLE "Report" (
 -- Skill Score Table
 CREATE TABLE "skill score" (
     skill VARCHAR(255) NOT NULL,
-    report_id INTEGER NOT NULL,
+    interview_id INTEGER NOT NULL,
     score INTEGER NOT NULL,
-    PRIMARY KEY (skill, report_id),
-    FOREIGN KEY (report_id) REFERENCES "Report"(_id)
+    evidence TEXT,
+    PRIMARY KEY (skill, interview_id),
+    FOREIGN KEY (interview_id) REFERENCES interview(id)
 );
 
 -- Indexes for better query performance
