@@ -1,7 +1,7 @@
 """API routes for interview analysis"""
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict, Any
-from ..models.analysis import AnalyzeInterviewRequest, AnalysisResponse
+from ..models.analysis import AnalyzeInterviewRequest, AnalysisResponse, SkillScoreResponse
 from ..services.interview_analyzer import analyzer_service
 from ..core.database import get_db
 from supabase import Client
@@ -97,31 +97,42 @@ async def get_interview_analysis(
 ):
     """Retrieve existing analysis for an interview"""
     try:
+        # Get report data
         report = db.table("Report")\
-            .select("*, skill score(*)")\
+            .select("*")\
             .eq("interview_id", interview_id)\
-            .single()\
+            .maybe_single()\
             .execute()
 
-        if not report.data:
-            raise HTTPException(status_code=404, detail="Analysis not found")
+        if not report or not report.data:
+            raise HTTPException(status_code=404, detail="Analysis not found for this interview")
+
+        # Get skill scores separately
+        skill_scores = db.table("skill score")\
+            .select("*")\
+            .eq("interview_id", interview_id)\
+            .execute()
 
         data = report.data
-
+        from datetime import datetime
+        
         return AnalysisResponse(
             interview_id=interview_id,
-            overall_score=data["overallscore"],
-            recommendation=data["recommondation"],
-            feedback=data["feedback"],
+            overall_score=data.get("overallscore", 0),
+            recommendation=data.get("recommondation", ""),
+            feedback=data.get("feedback", ""),
             skill_scores=[
-                {"skill": s["skill"], "score": s["score"], "evidence": ""}
-                for s in data["skill score"]
+                SkillScoreResponse(skill=s["skill"], score=s["score"], evidence=s.get("evidence", ""))
+                for s in skill_scores.data
             ],
-            sentiment={},  # Load from JSON if stored separately
+            sentiment={},
             key_strengths=[],
             areas_for_improvement=[],
-            created_at=data.get("createdAt")
+            created_at=datetime.now()
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        print(f"Error in get_interview_analysis: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Analysis retrieval failed: {str(e)}")
