@@ -1,5 +1,33 @@
 -- AI Avatar Interview System Database Schema
 
+-- Store detailed sentiment analysis
+CREATE TABLE "Sentiment_Analysis" (
+    _id SERIAL PRIMARY KEY,
+    report_id INTEGER NOT NULL,
+    overall_sentiment VARCHAR(500),
+    confidence_level VARCHAR(500),
+    nervousness_indicators JSONB,
+    FOREIGN KEY (report_id) REFERENCES "Report"(_id)
+);
+
+-- Store full transcript in database (alternative to file storage)
+CREATE TABLE "Interview_Transcript" (
+    _id SERIAL PRIMARY KEY,
+    interview_id INTEGER NOT NULL,
+    transcript_data JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (interview_id) REFERENCES interview(id)
+);
+
+-- Store detailed strengths and improvements
+CREATE TABLE "Analysis_Details" (
+    _id SERIAL PRIMARY KEY,
+    report_id INTEGER NOT NULL,
+    key_strengths JSONB,
+    areas_for_improvement JSONB,
+    response_quality JSONB,
+    FOREIGN KEY (report_id) REFERENCES "Report"(_id)
+);
 -- User Table
 CREATE TABLE "User" (
     _id SERIAL PRIMARY KEY,
