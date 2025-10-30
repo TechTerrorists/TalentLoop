@@ -1,6 +1,6 @@
 from pydantic import BaseModel,Field
 from typing import Optional, List
 
-class JobSkills(BaseModel):
+class JobSkill(BaseModel):
     job_id:int
-    skills:List[str]
+    skill:str
