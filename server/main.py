@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
-from app.api.analysis_route import router as analysis_router
 from app.core.config import settings
 from app.api.jobroute import router as job_router 
 from app.api.companyroute import router as company_router
@@ -26,7 +25,6 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(router, prefix="/api/v1")
-app.include_router(analysis_router, prefix="/api/v1", tags=["Analysis"])
 app.include_router(company_router, prefix="/company", tags=["Company"])
 app.include_router(job_router, prefix="/jobs", tags=["Jobs"])
 app.include_router(jobskill_router, prefix="/jobsskills", tags=["JobsSkills"])

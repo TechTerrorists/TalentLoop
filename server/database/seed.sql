@@ -64,8 +64,8 @@ INSERT INTO "Report" (_id, interview_id, overallscore, recommondation, feedback,
 SELECT setval(pg_get_serial_sequence('"Report"', '_id'), 1, true);
 
 -- Insert Skill Scores
-INSERT INTO "skill score" (skill, interview_id, score, evidence) VALUES
-('JavaScript', 2, 90, 'Demonstrated strong understanding of ES6+ features and async programming'),
-('React', 2, 85, 'Good knowledge of hooks, component lifecycle, and state management'),
-('CSS', 2, 80, 'Solid understanding of responsive design and modern CSS techniques'),
-('HTML', 2, 85, 'Strong semantic HTML knowledge and accessibility best practices');
+INSERT INTO "skill score" (skill, report_id, score) VALUES
+('JavaScript', 1, 90),
+('React', 1, 85),
+('CSS', 1, 80),
+('HTML', 1, 85);

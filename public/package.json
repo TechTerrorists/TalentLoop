@@ -9,24 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@daily-co/daily-js": "^0.55.0",
-    "@tabler/icons-react": "^3.35.0",
-    "axios": "^1.6.0",
-    "clsx": "^2.1.1",
-    "framer-motion": "^12.23.24",
-    "lucide-react": "^0.552.0",
-    "motion": "^12.23.24",
-    "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "tailwind-merge": "^3.3.1"
+    "next": "16.0.0",
+    "axios": "^1.6.0",
+    "@daily-co/daily-js": "^0.55.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "24.9.2",
-    "@types/react": "19.2.2",
+    "tailwindcss": "^4",
     "eslint": "^9",
-    "eslint-config-next": "16.0.0",
-    "tailwindcss": "^4"
+    "eslint-config-next": "16.0.0"
   }
 }
