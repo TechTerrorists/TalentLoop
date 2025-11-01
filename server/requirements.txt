@@ -22,3 +22,13 @@ pydantic-settings==2.11.0
 pydantic_core==2.33.2
 python-dotenv==1.0.0
 httpx==0.28.1
+
+#auth
+python-dotenv
+supabase
+pyjwt
+bcrypt
+passlib
+email-validator
+aiosmtplib
+email-validator

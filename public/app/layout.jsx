@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "AI Avatar Interview System",
+  title: "TalentLoop: AI Avatar Based Interview System",
   description: "Practice interviews with AI-powered avatars and get real-time feedback",
 };
 
