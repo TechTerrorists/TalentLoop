@@ -146,7 +146,10 @@ async def fetch_rag_context(query: str) -> str:
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
-    
+
+    transcript_aggregator = TranscriptAggregator()
+    transcript_data = []
+
     async with aiohttp.ClientSession() as session:
         stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
 
@@ -224,6 +227,15 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
             observers=[RTVIObserver(rtvi)],
         )
 
+        @transcript_aggregator.event_handler("on_transcript_update")
+        async def on_transcript(aggregator, transcript):
+            transcript_data.append({
+                "timestamp": datetime.now().isoformat(),
+                "speaker": transcript.get("role", "unknown"),
+                "text": transcript.get("text", "")
+            })
+
+
         @transport.event_handler("on_client_connected")
         async def on_client_connected(transport, client):
             logger.info(f"Client connected")
@@ -260,12 +272,38 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         async def on_client_disconnected(transport, client):
             logger.info(f"Client disconnected")
             logger.info(f"Interview transcript: {messages}")
+
+            await send_transcript_for_analysis(
+                interview_id=os.getenv("INTERVIEW_ID"),
+                transcript_data=transcript_data,
+                messages=messages
+            )
+            
+            
             await task.cancel()
 
         runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)
 
         await runner.run(task)
 
+async def send_transcript_for_analysis(interview_id: str, transcript_data: list, messages: list):
+    """Send collected transcript to backend for analysis"""
+    analysis_url = os.getenv("BACKEND_API_URL", "http://127.0.0.1:8000") + "/api/v1/analyze-interview"
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            payload = {
+                "interview_id": interview_id,
+                "transcript": transcript_data,
+                "conversation_context": messages
+            }
+            async with session.post(analysis_url, json=payload) as resp:
+                if resp.status == 200:
+                    logger.info("✅ Transcript sent for analysis")
+                else:
+                    logger.error(f"❌ Failed to send transcript: {resp.status}")
+    except Exception as e:
+        logger.error(f"Error sending transcript: {e}")
 
 async def bot(runner_args: RunnerArguments):
     """Main bot entry point for the bot starter."""
