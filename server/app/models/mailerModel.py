@@ -8,5 +8,5 @@ class InvitePayLoad(BaseModel):
     email: EmailStr
     company_id: int
     job_id: int
-    schedule_date = str
-    schedule_time = str
+    schedule_date: str
+    schedule_time: str
