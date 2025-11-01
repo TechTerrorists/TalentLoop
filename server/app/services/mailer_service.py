@@ -36,7 +36,7 @@ class TalentLoopMailer:
         # --- Initialize clients ---
         self.supabase: Client = create_client(self.SUPABASE_URL, self.SUPABASE_SERVICE_ROLE_KEY)
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/mail/login")
         self.app = FastAPI(title="TalentLoop Auth Service")
 
     # --- Utility Methods ---
@@ -86,7 +86,7 @@ class TalentLoopMailer:
                 "name": name,
                 "email": email,
                 "password": hashed_password,
-                "role": "candidate",
+                "role": "Candidate",
                 "must_reset_password": True
             }).execute()
             return response.data[0]
@@ -98,7 +98,7 @@ class TalentLoopMailer:
             res = self.supabase.table("User").update({
                 "password": hashed_password,
                 "must_reset_password": False,
-                "updated_at": datetime.utcnow()
+                "updatedAt": datetime.utcnow().isoformat()
             }).eq("_id", user_id).execute()
             return res.data[0]
         except Exception as e:
@@ -110,7 +110,7 @@ class TalentLoopMailer:
                 "name": name,
                 "email": email,
                 "company_id": company_id,
-                "job_id": job_id
+                "jobid": job_id
             }).execute()
             return response.data[0]
         except Exception as e:
@@ -122,8 +122,8 @@ class TalentLoopMailer:
                 "candidate_id": candidate_id,
                 "company_id": company_id,
                 "job_id": job_id,
-                "schedule_date": schedule_date,
-                "schedule_time": schedule_time,
+                "Schedule_Date": schedule_date,
+                "Schedule_Time": schedule_time,
                 "bot_url": bot_url
             }).execute()
             return response.data[0]
@@ -131,7 +131,7 @@ class TalentLoopMailer:
             raise Exception(f"Failed to insert interview {e}")
         
 #      AUTH
-    async def get_current_user(self, token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))):
+    async def get_current_user(self, token: str = Depends(OAuth2PasswordBearer(tokenUrl="/mail/login"))):
         cred_exc = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
