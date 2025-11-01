@@ -13,7 +13,12 @@ class Settings(BaseSettings):
     # Database
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
-    
+    SUPABASE_SERVICE_ROLE_KEY:str=""
+    SMTP_HOST:str=""
+    SMTP_PORT:str=""
+    SMTP_USER:str=""
+    SMTP_PASS:str=""
+    JWT_SECRET:str=""
     class Config:
         env_file = ".env"
 
