@@ -33,6 +33,7 @@ export const auth = {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('access_token');
       localStorage.removeItem('token_type');
+      window.dispatchEvent(new Event('storage'));
       window.location.href = '/login';
     }
   },
