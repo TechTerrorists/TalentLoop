@@ -119,7 +119,7 @@ class TranscriptHandler:
         # Optionally write to file
         if self.output_file:
             try:
-                with open(self.output_file, "w", encoding="utf-8") as f:
+                with open(self.output_file, "a", encoding="utf-8") as f:
                     f.write(line + "\n")
             except Exception as e:
                 logger.error(f"Error saving transcript message to file: {e}")
@@ -249,6 +249,13 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         @transport.event_handler("on_client_connected")
         async def on_client_connected(transport, client):
             logger.info(f"Client connected")
+            
+            # Clear transcript file for new interview
+            try:
+                with open('trialTranscript.txt', 'w', encoding='utf-8') as f:
+                    f.write('')
+            except Exception as e:
+                logger.error(f"Failed to clear transcript file: {e}")
             
             # candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
             # company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
