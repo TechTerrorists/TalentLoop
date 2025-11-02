@@ -22,7 +22,7 @@ export default function Home() {
           </div>
           <div className="md:mt-[700] flex justify-center gap-4">
             <a
-              href="/dashboard"
+              href="/login"
               className="bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg"
             >
               Get Started
@@ -138,7 +138,7 @@ export default function Home() {
             interview skills with TalentLoop.
           </p>
           <a
-            href="/dashboard"
+            href="/login"
             className="inline-block bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-12 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg"
           >
             Start Your First Interview

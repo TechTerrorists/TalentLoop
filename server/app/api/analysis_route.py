@@ -107,10 +107,10 @@ async def get_interview_analysis(
         if not report or not report.data:
             raise HTTPException(status_code=404, detail="Analysis not found for this interview")
 
-        # Get skill scores separately
+        # Get skill scores separately using report_id
         skill_scores = db.table("skill score")\
             .select("*")\
-            .eq("interview_id", interview_id)\
+            .eq("report_id", data.get("_id"))\
             .execute()
 
         data = report.data

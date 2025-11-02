@@ -131,7 +131,7 @@ class TalentLoopMailer:
             raise Exception(f"Failed to insert interview {e}")
         
 #      AUTH
-    async def get_current_user(self, token: str = Depends(OAuth2PasswordBearer(tokenUrl="/mail/login"))):
+    def get_current_user(self, token: str):
         cred_exc = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",

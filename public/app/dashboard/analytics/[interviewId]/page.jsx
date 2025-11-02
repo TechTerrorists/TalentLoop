@@ -1,12 +1,16 @@
-"use server";
+"use client";
 import InterviewAnalytics from "../../../components/InterviewAnalytics";
+import ProtectedRoute from "../../../components/ProtectedRoute";
+import { use } from 'react';
 
-export default async function AnalyticsPage({ params }) {
-  const { interviewId } = await params;
+export default function AnalyticsPage({ params }) {
+  const { interviewId } = use(params);
 
   return (
-    <div className="container mx-auto py-8">
-      <InterviewAnalytics interviewId={interviewId} />
-    </div>
+    <ProtectedRoute>
+      <div className="container mx-auto py-8">
+        <InterviewAnalytics interviewId={interviewId} />
+      </div>
+    </ProtectedRoute>
   );
 }

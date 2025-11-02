@@ -62,8 +62,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     token = mailerService.create_access_token({"sub": user["email"], "role": user.get("role", "candidate")})
     return {"access_token": token, "token_type": "bearer", "expires_in": mailerService.ACCESS_TOKEN_EXPIRES_MINUTES}
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/mail/login")
+
 @router.post("/reset-password")
-def reset_password(new_password: str = Body(...), current_user: dict = Depends(mailerService.get_current_user)):
+def reset_password(new_password: str = Body(...), token: str = Depends(oauth2_scheme)):
+    current_user = mailerService.get_current_user(token)
     hashed = mailerService.hash_password(new_password)
     mailerService.update_password(current_user["_id"], hashed)
     return {"message": "password updated"}

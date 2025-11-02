@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { interviewAPI } from '../../lib/api.js';
 import Link from "next/link";
+import ProtectedRoute from '../components/ProtectedRoute.jsx';
 
 export default function Dashboard() {
   const [session, setSession] = useState(null);
@@ -44,7 +45,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#D9EAFD] to-[#BCCCDC]">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#D9EAFD] to-[#BCCCDC]">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
@@ -163,5 +165,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
