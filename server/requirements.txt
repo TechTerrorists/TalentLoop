@@ -26,9 +26,8 @@ httpx==0.28.1
 #auth
 python-dotenv
 supabase
-pyjwt
+python-jose[cryptography]
 bcrypt
-passlib
+passlib[bcrypt]
 email-validator
 aiosmtplib
-email-validator

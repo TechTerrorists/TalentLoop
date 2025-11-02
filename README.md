@@ -37,17 +37,34 @@ A comprehensive interview platform using AI avatars with real-time voice interac
 
 ### Frontend Setup
 ```bash
-cd frontend
+cd public
 npm install
 npm run dev
 ```
 
 ### Backend Setup
 ```bash
-cd backend
+cd server
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
+
+### Authentication Setup
+
+1. **Create Test Data**:
+```bash
+python create_test_user.py
+```
+
+2. **Login Credentials**:
+- Email: `test@example.com`
+- Password: `password123`
+
+3. **Authentication Flow**:
+- Users must login to access the dashboard
+- JWT tokens are stored in localStorage
+- Protected routes automatically redirect to login
+- Password reset functionality available
 
 ## Key Features
 

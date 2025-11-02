@@ -17,7 +17,7 @@ import {
   IconCheck,
   IconLoader2
 } from "@tabler/icons-react";
-
+    
 export default function Dashboard() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -430,5 +430,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+      
   );
 }

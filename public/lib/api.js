@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { auth } from './auth.js';
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
@@ -8,6 +9,26 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Add auth interceptor
+api.interceptors.request.use((config) => {
+  const authHeader = auth.getAuthHeader();
+  if (authHeader) {
+    config.headers.Authorization = authHeader;
+  }
+  return config;
+});
+
+// Handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      auth.logout();
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const interviewAPI = {
   listInterviews: async () => {
