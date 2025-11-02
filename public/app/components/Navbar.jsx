@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useMotionValueEvent, useScroll, AnimatePresence } from "motion/react";
 import { IconMenu, IconX, IconMicrophone } from "@tabler/icons-react";
+import { auth } from '../../lib/auth.js';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -12,7 +13,24 @@ export default function Navbar() {
   const [visible, setVisible] = useState(false);
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const ref = useRef(null);
+
+  // Auth check
+  useEffect(() => {
+    const checkAuth = () => {
+      const authenticated = auth.isAuthenticated() && !auth.isTokenExpired();
+      setIsAuthenticated(authenticated);
+      if (authenticated) {
+        setUser(auth.getCurrentUser());
+      }
+    };
+
+    checkAuth();
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
 
   // Mobile detection
   useEffect(() => {
@@ -43,9 +61,15 @@ export default function Navbar() {
     setOpen(false);
   }, [pathname]);
 
-  const navItems = [
+  const handleLogout = () => {
+    auth.logout();
+  };
+
+  const navItems = isAuthenticated ? [
     { href: "/", label: "Home" },
     { href: "/dashboard", label: "Dashboard" },
+  ] : [
+    { href: "/", label: "Home" },
   ];
 
   return (
@@ -99,6 +123,26 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">
+                Welcome, {user?.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-4 py-2 rounded-lg text-sm transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Login
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -175,6 +219,27 @@ export default function Navbar() {
                       {item.label}
                     </Link>
                   ))}
+                  {isAuthenticated ? (
+                    <>
+                      <div className="px-4 py-3 text-sm text-gray-600 border-t border-gray-200 mt-4 pt-4">
+                        Welcome, {user?.email}
+                      </div>
+                      <button
+                        onClick={() => { handleLogout(); setOpen(false); }}
+                        className="mx-4 bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-4 py-3 rounded-lg text-base font-medium transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href="/login"
+                      onClick={() => setOpen(false)}
+                      className="mx-4 bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-4 py-3 rounded-lg text-base font-medium transition-colors text-center"
+                    >
+                      Login
+                    </Link>
+                  )}
                 </div>
               </div>
             </motion.div>
