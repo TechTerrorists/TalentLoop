@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
 from app.api.analysis_route import router as analysis_router
@@ -9,6 +9,7 @@ from app.api.candidateroute import router as candidate_router
 from app.api.reportroute import router as report_router
 from app.api.jobskillsroute import router as jobskill_router
 from app.api.mailroutes import router as mail_router
+from app.services.websocket_service import manager
 app = FastAPI(
     title="AI Avatar Interview API",
     description="Backend API for AI-powered interview system",
@@ -36,6 +37,16 @@ app.include_router(mail_router,prefix="/mail",tags=["Mail"])
 @app.get("/")
 async def root():
     return {"message": "AI Avatar Interview API is running"}
+
+@app.websocket("/ws/pipecat")
+async def pipecat_websocket(websocket: WebSocket):
+    await manager.connect_pipecat(websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            await manager.handle_pipecat_message(data)
+    except WebSocketDisconnect:
+        await manager.disconnect_pipecat()
 
 if __name__ == "__main__":
     import uvicorn

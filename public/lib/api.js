@@ -30,9 +30,19 @@ api.interceptors.response.use(
   }
 );
 
+export const authAPI = {
+  getCurrentCandidate: async () => {
+    const response = await api.get('/mail/me', {
+      baseURL: 'http://localhost:8000'
+    });
+    return response.data;
+  }
+};
+
 export const interviewAPI = {
-  listInterviews: async () => {
-    const response = await api.get('/interviews/');
+  listInterviews: async (candidateId = null) => {
+    const url = candidateId ? `/interviews/?candidate_id=${candidateId}` : '/interviews/';
+    const response = await api.get(url);
     return response.data;
   },
 

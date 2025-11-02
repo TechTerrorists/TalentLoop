@@ -1,1 +1,0 @@
-[2025-11-02T15:23:20.533+00:00] assistant: Hello John Doe, thank you for coming in today. I'm excited to learn more about your experience and skills. To start, could you please tell me a bit about yourself and what specifically attracted you to the Software Engineer position at TechCorp?

@@ -6,7 +6,8 @@ requires-python = ">=3.10"
 dependencies = [
     "pipecat-ai[webrtc,daily,silero,deepgram,google,cartesia,tavus,local-smart-turn-v3,runner]",
     "pipecat-ai-cli",
-    "supabase"
+    "supabase",
+    "websockets"
 ]
 
 [dependency-groups]

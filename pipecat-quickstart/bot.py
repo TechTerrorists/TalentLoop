@@ -20,6 +20,7 @@ Run the bot using::
 """
 
 import os
+import asyncio
 import aiohttp
 from dotenv import load_dotenv
 from loguru import logger
@@ -72,6 +73,7 @@ from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.daily.transport import DailyParams
 from pipecat.processors.transcript_processor import TranscriptProcessor
 from pipecat.frames.frames import LLMRunFrame, TranscriptionMessage, TranscriptionUpdateFrame
+from websocket_client import ws_client
 
 logger.info("✅ All components loaded successfully!")
 
@@ -169,6 +171,14 @@ async def getdetails(candidateid):
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
     
+    # Connect to backend WebSocket
+    connected = await ws_client.connect()
+    if connected:
+        asyncio.create_task(ws_client.listen())
+        logger.info("Connected to backend WebSocket")
+    else:
+        logger.warning("WebSocket connection failed. Using fallback values.")
+    
     async with aiohttp.ClientSession() as session:
         stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
 
@@ -250,29 +260,31 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         async def on_client_connected(transport, client):
             logger.info(f"Client connected")
             
+            interview_id = await ws_client.get_interview_id() or 39
+            candidate_id = await ws_client.get_candidate_id() or 2
+
+            logger.info(f"Using interview_id: {interview_id}, candidate_id: {candidate_id}")
+            
+            await ws_client.client_connected(interview_id)
+            
             # Clear transcript file for new interview
             try:
                 with open('trialTranscript.txt', 'w', encoding='utf-8') as f:
                     f.write('')
             except Exception as e:
                 logger.error(f"Failed to clear transcript file: {e}")
-            
-            # candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
-            # company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
-            # job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
-            candidate_id = int(os.getenv("CANDIDATE_ID", "2"))
 
             # Fetch job skills
+            logger.info(f"Fetching details for candidate_id: {candidate_id}")
             relevantContext = await getdetails(candidateid=candidate_id)
 
             # Set system prompt with job skills
             system_prompt = f"""
-            You are an AI interviewer , conducting a technical interview for  position.
+            You are an AI interviewer, conducting a technical interview.
             All required relevant context is provided below:
                 {relevantContext}
             
             Greet the candidate with their name and begin the interview politely. Focus your questions on the required skills listed above. Ask one question at a time. Also ask counter questions and questions from their profile.
-
             """
             messages.clear()
             messages.append({"role": "system", "content": system_prompt})
@@ -292,7 +304,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
                 with open('trialTranscript.txt', 'r', encoding='utf-8') as f:
                     transcript_content = f.read()
                 
-                interview_id = int(os.getenv("INTERVIEW_ID", "39"))
+                interview_id = await ws_client.get_interview_id() or 39
                 
                 # Upload transcript
                 supabase.table('Interview_Transcript').insert({
@@ -300,10 +312,8 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
                     'transcript_data': transcript_content
                 }).execute()
                 
-                # End interview in database
-                supabase.table('interview').update({
-                    'status': 'completed'
-                }).eq('id', interview_id).execute()
+                # Notify backend about disconnection
+                await ws_client.client_disconnected(interview_id)
                 
                 logger.info(f"Interview {interview_id} completed and transcript uploaded")
             except Exception as e:

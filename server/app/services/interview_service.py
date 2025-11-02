@@ -90,11 +90,16 @@ class InterviewService:
             return Interview(**result.data[0])
         return None
     
-    def list_all_sessions(self):
-        """List all interview sessions"""
+    def list_all_sessions(self, candidate_id: int = None):
+        """List all interview sessions or filter by candidate_id"""
         if not supabase:
             return list(self.sessions.values())
-        result = supabase.table("interview").select("*").execute()
+        
+        query = supabase.table("interview").select("*")
+        if candidate_id:
+            query = query.eq("candidate_id", candidate_id)
+        
+        result = query.execute()
         return result.data if result.data else []
     
     async def create_report(self, interview_id: int, transcript: str) -> ReportCreate:
