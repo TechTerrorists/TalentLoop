@@ -41,6 +41,9 @@ export default function LoginPage() {
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('token_type', data.token_type);
         
+        // Trigger storage event for navbar update
+        window.dispatchEvent(new Event('storage'));
+        
         // Redirect to dashboard
         router.push('/dashboard');
       } else {
