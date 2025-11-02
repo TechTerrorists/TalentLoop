@@ -25,6 +25,20 @@ from dotenv import load_dotenv
 from loguru import logger
 from typing import List, Optional
 from datetime import datetime
+from fastapi import FastAPI
+from supabase import create_client, Client
+load_dotenv()
+
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_KEY")
+
+supabase: Client = None
+if supabase_url and supabase_key:
+    supabase = create_client(supabase_url, supabase_key)
+
+
+# app = FastAPI()
+# app.include_router(jobskillsroute.router, candidateroute.router)
 
 print("🚀 Starting Pipecat bot...")
 print("⏳ Loading models and imports (20 seconds, first run only)\n")
@@ -125,23 +139,19 @@ class TranscriptHandler:
             self.messages.append(msg)
             await self.save_message(msg)
 
-
-async def fetch_rag_context(query: str) -> str:
-    """Fetch relevant context from your FastAPI RAG service."""
-    rag_url = os.getenv("RAG_API_URL", "http://127.0.0.1:8001/get_context")
-    if not rag_url:
-        return ""
-
+async def getdetails(candidateid):
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(rag_url, params={"query": query, "limit": 3}) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    contents = [r.get("content", "") for r in data.get("results", [])]
-                    return "\n\n".join(contents)
+            candidatedetails=supabase.table("Candidate_Info").select("").eq("id",candidateid).execute()
+            companyid=candidatedetails.data[0]["company_id"]
+            jobid=candidatedetails.data[0]["jobid"]
+            companydetails=supabase.table("Company").select("").eq("_id",companyid).execute()
+            jobdetails=supabase.table("Candidate_Info").select(",Job_Requirements()").eq("_id",jobid).execute()
+
+            result=[candidatedetails.data[0],companydetails.data[0],jobdetails.data[0]]
+            return result
     except Exception as e:
-        print(f"[RAG fetch failed] {e}")
-    return ""
+        logger.error(f"Error fetching job skills: {e}")
+        return ""
 
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
@@ -231,22 +241,18 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
             candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
             company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
             job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
+            candidate_id = int(os.getenv("CANDIDATE_ID", "2"))
 
-            # Fetch RAG context dynamically
-            query = f"""
-            Relevant interview context for candidate '{candidate_name}' applying for '{job_title}' at '{company_name}'.
-            Include details from the candidate's resume, job description, company profile, and any relevant skills or requirements.
-            """
-            rag_context = await fetch_rag_context(query)
+            # Fetch job skills
+            relevantContext = getdetails(candidateid=candidate_id)
 
-            # Set system prompt with fetched context
+            # Set system prompt with job skills
             system_prompt = f"""
             You are an AI interviewer for {company_name}, conducting a technical interview for a {job_title} position.
-            Use the following context to guide your questions:
+            Relevant context about interviewee and the job posting and requirements is - {relevantContext}
+            
+            Greet the candidate {candidate_name} and begin the interview politely. Focus your questions on the required skills listed above. Ask one question at a time.
 
-            {rag_context}
-
-            Greet the candidate {candidate_name} and begin the interview politely. Ask one question at a time.
             """
             messages.clear()
             messages.append({"role": "system", "content": system_prompt})
