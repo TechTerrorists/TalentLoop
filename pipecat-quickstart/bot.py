@@ -74,6 +74,9 @@ from pipecat.transports.daily.transport import DailyParams
 from pipecat.processors.transcript_processor import TranscriptProcessor
 from pipecat.frames.frames import LLMRunFrame, TranscriptionMessage, TranscriptionUpdateFrame
 from websocket_client import ws_client
+from geminiPrompt import InterviewEvaluator
+
+evaluator = InterviewEvaluator()
 
 logger.info("✅ All components loaded successfully!")
 
@@ -259,7 +262,8 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         @transport.event_handler("on_client_connected")
         async def on_client_connected(transport, client):
             logger.info(f"Client connected")
-            
+
+            global interview_id,candidate_id
             interview_id = await ws_client.get_interview_id() or 39
             candidate_id = await ws_client.get_candidate_id() or 2
 
@@ -298,26 +302,34 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         async def on_client_disconnected(transport, client):
             logger.info(f"Client disconnected")
             logger.info(f"Interview transcript: {messages}")
+            interview_id = await ws_client.get_interview_id() or 39
             
             # Upload transcript and end interview
             try:
                 with open('trialTranscript.txt', 'r', encoding='utf-8') as f:
                     transcript_content = f.read()
-                
-                interview_id = await ws_client.get_interview_id() or 39
-                
                 # Upload transcript
                 supabase.table('Interview_Transcript').insert({
                     'interview_id': interview_id,
                     'transcript_data': transcript_content
                 }).execute()
-                
-                # Notify backend about disconnection
-                await ws_client.client_disconnected(interview_id)
-                
+                logger.info("✅ Interview evaluation saved:", result)
+
+            except Exception as e:
+                logger.error(f"Failed to complete interview: {e}") 
+
+            try:
+                result = evaluator.run(
+                transcript_path="trialTranscript.txt",
+                interviewID=interview_id  # or DB id
+                )
+
                 logger.info(f"Interview {interview_id} completed and transcript uploaded")
             except Exception as e:
-                logger.error(f"Failed to complete interview: {e}")
+                logger.error(f"❌ Error while evaluating interview: {e}")
+
+             # Notify backend about disconnection
+            await ws_client.client_disconnected(interview_id)
             
             await task.cancel()
 

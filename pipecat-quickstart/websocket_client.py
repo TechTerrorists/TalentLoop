@@ -20,7 +20,7 @@ class BackendWebSocketClient:
         except:
             host_ip = 'localhost'
         
-        self.backend_url = "ws://172.29.112.1:8000/ws/pipecat"
+        self.backend_url = "ws://172.21.32.1:8000/ws/pipecat"
         print(f"Backend URL: {self.backend_url}")
         self.current_interview_id = None
         self.current_candidate_id = None
