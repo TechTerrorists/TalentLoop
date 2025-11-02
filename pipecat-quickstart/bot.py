@@ -292,10 +292,10 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
                 with open('trialTranscript.txt', 'r', encoding='utf-8') as f:
                     transcript_content = f.read()
                 
-                interview_id = int(os.getenv("INTERVIEW_ID", "87"))
+                interview_id = int(os.getenv("INTERVIEW_ID", "39"))
                 
                 # Upload transcript
-                supabase.table('transcripts').insert({
+                supabase.table('Interview_Transcript').insert({
                     'interview_id': interview_id,
                     'transcript_data': transcript_content
                 }).execute()
