@@ -14,43 +14,41 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 router = APIRouter()
 mailerService = TalentLoopMailer()
 
-@router.post("/inviteCandidates")
-async def invite_candidates(payload: InvitePayLoad):
-    existing = mailerService.call_user_by_email(payload.email)
+@router.post("/mailCandidate/{interviewid}")
+async def invite_candidates(interviewid:int):
+    result = supabase.table("interview").select("*, Candidate_Info(*)").eq("id", interviewid).execute()
+    data=result.data[0]
+    print(result)
+    existing = mailerService.call_user_by_email(data["Candidate_Info"]["email"])
     tempPass = mailerService.generate_temp_pass()
-    print("TEMP PASSWORD:", repr(tempPass))
-    print("BYTE LENGTH:", len(tempPass.encode()))
     hashedPass = mailerService.hash_password(tempPass)
 
     if existing:
         supabase.table("User").update({
             "password": hashedPass,
             "must_reset_password": True,
-        }).eq("email",payload.email).execute()
+        }).eq("email",data["Candidate_Info"]["email"]).execute()
 
-        user = mailerService.call_user_by_email(payload.email)
+        user = existing
     else:
-        user = mailerService.insert_user(payload.name, payload.email, hashedPass)
+        user = mailerService.insert_user(data["Candidate_Info"]["name"],data["Candidate_Info"]["email"], hashedPass)
 
 
-    candidate = mailerService.insert_candidate(payload.name, payload.email, payload.company_id, payload.job_id)
     frontend_link = ""
-    mailerService.insert_interview(candidate.get('id') or candidate.get("_id"), payload.company_id,payload.job_id, payload.schedule_date, payload.schedule_time, frontend_link)
-
     html = f"""
-    <h3>Hi {payload.name},</h3>
-    <p>Your interview is scheduled on <b>{payload.schedule_date}</b> at <b>{payload.schedule_time}</b>.</p>
+    <h3>Hi {data["Candidate_Info"]["email"]},</h3>
+    <p>Your interview is scheduled on <b>{data["Schedule_Date"]}</b> at <b>{data["Schedule_Time"]}</b>.</p>
     <p>Use these credentials to sign in:</p>
     <ul>
-      <li><b>Email:</b> {payload.email}</li>
+      <li><b>Email:</b> {data["Candidate_Info"]["email"]}</li>
       <li><b>Temporary password:</b> <code>{tempPass}</code></li>
     </ul>
     <p>Open the interview: <a href="{frontend_link}">Start Interview</a></p>
     <p>You'll be asked to change your password after signing in.</p>
     """
 
-    await mailerService.send_mail(payload.email, "TalentLoop - Interview Invite", html)
-    return {"message": "Invitation sent successfully to candidate.", "email":payload.email}
+    await mailerService.send_mail(data["Candidate_Info"]["email"], "TalentLoop - Interview Invite", html)
+    return {"message": "Invitation sent successfully to candidate.", "email":data["Candidate_Info"]["email"]}
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -67,6 +65,5 @@ def reset_password(new_password: str = Body(...), current_user: dict = Depends(m
     hashed = mailerService.hash_password(new_password)
     mailerService.update_password(current_user["_id"], hashed)
     return {"message": "password updated"}
-
 
 
