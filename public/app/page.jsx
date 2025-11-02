@@ -1,18 +1,28 @@
 'use client';
 import { MacbookScroll } from "./components/components/ui/macbook-scroll";
+import { ExplainableAIApproach } from "./components/components/ui/explainable-ai-approach";
+import { IconCaretRightFilled } from "@tabler/icons-react";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#D9EAFD] to-[#BCCCDC]">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold text-gray-800 mb-6">
-            Welcome to <span className="text-gray-800">TalentLoop</span>
+          <h1 className="text-6xl md:text-7xl font-bold text-gray-800 mb-4 leading-tight">
+            Everything App
+            <br />
+            <span className="text-gray-800">for your interviews</span>
           </h1>
-          <p className="text-2xl text-gray-700 max-w-3xl mx-auto mb-8">
-            Transform your interview experience with AI-powered avatar
-            technology. Practice, improve, and ace your next interview.
+           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-12 mt-6">
+            TalentLoop, an AI-powered platform, serves as an all-in-one solution for interview practice, skill development, and performance tracking.
           </p>
+           <a
+            href="/dashboard"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 bg-gradient-to-r from-gray-200 via-gray-100 to-orange-300 text-gray-900"
+          >
+            Get Started
+            <IconCaretRightFilled className="w-5 h-5" />
+          </a>
           <div className="hidden md:block">
             <MacbookScroll
               showGradient={true}
@@ -20,7 +30,7 @@ export default function Home() {
               secondImage={`/screenshots/image2.png`}
             />
           </div>
-          <div className="md:mt-[700] flex justify-center gap-4">
+          <div className="md:mt-[600] flex justify-center gap-4">
             <a
               href="/login"
               className="bg-[#BCCCDC] hover:bg-[#9AA6B2] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg"
@@ -32,7 +42,13 @@ export default function Home() {
             </button>
           </div>
         </div>
-        {/* Features Grid */}
+      </div>
+      
+      {/* Explainable AI Approach Section */}
+      <ExplainableAIApproach />
+      
+      {/* Features Grid */}
+      <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-20">
           <div className="bg-[#F8FAFC] rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
             <div className="w-14 h-14 bg-[#D9EAFD] rounded-lg flex items-center justify-center mb-6">
