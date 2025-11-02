@@ -22,14 +22,31 @@ export default function Dashboard() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [interviews, setInterviews] = useState([]);
+  const [candidateId, setCandidateId] = useState(null);
 
   useEffect(() => {
-    loadInterviews();
+    loadCandidate();
   }, []);
+
+  useEffect(() => {
+    if (candidateId) {
+      loadInterviews();
+    }
+  }, [candidateId]);
+
+  const loadCandidate = async () => {
+    try {
+      const { authAPI } = await import('../../lib/api.js');
+      const candidate = await authAPI.getCurrentCandidate();
+      setCandidateId(candidate.id);
+    } catch (error) {
+      console.error('Failed to load candidate:', error);
+    }
+  };
 
   const loadInterviews = async () => {
     try {
-      const data = await interviewAPI.listInterviews();
+      const data = await interviewAPI.listInterviews(candidateId);
       setInterviews(data);
     } catch (error) {
       console.error('Failed to load interviews:', error);
@@ -37,10 +54,14 @@ export default function Dashboard() {
   };
 
   const startInterview = async () => {
+    if (!candidateId) {
+      console.error('Candidate ID not loaded');
+      return;
+    }
     setLoading(true);
     try {
       const config = {
-        candidate_id: 1,
+        candidate_id: candidateId,
         company_id: 1,
         job_id: 1,
         language: "en",

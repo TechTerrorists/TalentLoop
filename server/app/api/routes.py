@@ -58,10 +58,10 @@ async def health_check():
     return {"status": "healthy", "service": "AI Interview API"}
 
 @router.get("/interviews/")
-async def list_interviews():
-    """List all interviews"""
+async def list_interviews(candidate_id: int = None):
+    """List all interviews or filter by candidate_id"""
     try:
-        interviews = interview_service.list_all_sessions()
+        interviews = interview_service.list_all_sessions(candidate_id)
         return interviews
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -69,4 +69,12 @@ def reset_password(new_password: str = Body(...), token: str = Depends(oauth2_sc
     mailerService.update_password(current_user["_id"], hashed)
     return {"message": "password updated"}
 
+@router.get("/me")
+def get_current_candidate(token: str = Depends(oauth2_scheme)):
+    current_user = mailerService.get_current_user(token)
+    result = supabase.table("Candidate_Info").select("*").eq("email", current_user["email"]).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    return result.data[0]
+
 
