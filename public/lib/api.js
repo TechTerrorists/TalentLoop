@@ -55,4 +55,9 @@ export const interviewAPI = {
     const response = await api.post(`/interviews/${sessionId}/end`);
     return response.data;
   },
+
+  getInterviewAnalysis: async (interviewId) => {
+    const response = await api.get(`/interview/${interviewId}/analysis`);
+    return response;
+  },
 };
