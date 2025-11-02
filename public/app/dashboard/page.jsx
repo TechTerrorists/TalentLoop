@@ -22,6 +22,8 @@ export default function Dashboard() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [interviews, setInterviews] = useState([]);
+  const [candidateId, setCandidateId] = useState('');
+  const [showCandidateInput, setShowCandidateInput] = useState(false);
 
   useEffect(() => {
     loadInterviews();
@@ -37,10 +39,19 @@ export default function Dashboard() {
   };
 
   const startInterview = async () => {
+    if (!candidateId) {
+      setShowCandidateInput(true);
+      return;
+    }
+
     setLoading(true);
     try {
+      // Start interview session with candidate ID
+      const sessionResponse = await interviewAPI.startInterviewSession(parseInt(candidateId));
+      
+      // Create traditional interview record
       const config = {
-        candidate_id: 1,
+        candidate_id: parseInt(candidateId),
         company_id: 1,
         job_id: 1,
         language: "en",
@@ -49,11 +60,22 @@ export default function Dashboard() {
 
       const newSession = await interviewAPI.createInterview(config);
       const startResponse = await interviewAPI.startInterview(newSession.id);
-      setSession({...newSession, bot_url: startResponse.bot_url, status: 'in_progress'});
+      setSession({...newSession, bot_url: startResponse.bot_url, status: 'in_progress', candidate_id: candidateId});
+      setShowCandidateInput(false);
     } catch (error) {
       console.error('Failed to start interview:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const endCurrentSession = async () => {
+    try {
+      await interviewAPI.endInterviewSession();
+      setSession(null);
+      setCandidateId('');
+    } catch (error) {
+      console.error('Failed to end session:', error);
     }
   };
 
@@ -273,11 +295,29 @@ export default function Dashboard() {
                     ))}
                   </div>
                   <div className="flex flex-col items-center justify-center">
+                    {showCandidateInput && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6 w-full max-w-md"
+                      >
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Enter Candidate ID
+                        </label>
+                        <input
+                          type="number"
+                          value={candidateId}
+                          onChange={(e) => setCandidateId(e.target.value)}
+                          placeholder="e.g., 123"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </motion.div>
+                    )}
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={startInterview}
-                      disabled={loading}
+                      disabled={loading || (showCandidateInput && !candidateId)}
                       className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-[#BCCCDC] via-[#9AA6B2] to-[#BCCCDC] disabled:opacity-50 text-white px-10 py-5 rounded-full font-semibold text-lg transition-all shadow-xl hover:shadow-2xl overflow-hidden"
                     >
                       <span className="relative z-10 flex items-center gap-3">
@@ -333,7 +373,7 @@ export default function Dashboard() {
                   <motion.button
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setSession(null)}
+                    onClick={endCurrentSession}
                     className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
                   >
                     <IconX className="w-5 h-5" />
@@ -370,8 +410,8 @@ export default function Dashboard() {
                       transition={{ delay: 0.3 }}
                       className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200"
                     >
-                      <div className="text-sm text-purple-600 font-medium mb-1">Job ID</div>
-                      <div className="text-lg font-bold text-purple-900">#{session.job_id}</div>
+                      <div className="text-sm text-purple-600 font-medium mb-1">Candidate ID</div>
+                      <div className="text-lg font-bold text-purple-900">#{session.candidate_id}</div>
                     </motion.div>
                   </div>
 

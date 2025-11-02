@@ -139,6 +139,24 @@ class TranscriptHandler:
             self.messages.append(msg)
             await self.save_message(msg)
 
+async def fetch_current_candidate_id() -> int:
+    """Fetch current candidate ID from the API session"""
+    api_url = os.getenv("API_BASE_URL", "http://localhost:8000")
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{api_url}/interview/current-session") as resp:
+                if resp.status == 200:
+                    session_data = await resp.json()
+                    candidate_id = session_data.get("candidate_id")
+                    if candidate_id:
+                        return candidate_id
+    except Exception as e:
+        logger.error(f"Failed to fetch current candidate ID: {e}")
+    
+    # Fallback to environment variable
+    return int(os.getenv("CANDIDATE_ID", "2"))
+
 async def getdetails(candidateid):
     try:
             candidatedetails=supabase.table("Candidate_Info").select("*").eq("id",candidateid).execute()
@@ -250,10 +268,8 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         async def on_client_connected(transport, client):
             logger.info(f"Client connected")
             
-            # candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
-            # company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
-            # job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
-            candidate_id = int(os.getenv("CANDIDATE_ID", "2"))
+            # Fetch candidate ID from API session
+            candidate_id = await fetch_current_candidate_id()
 
             # Fetch job skills
             relevantContext = await getdetails(candidateid=candidate_id)

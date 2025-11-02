@@ -9,6 +9,7 @@ from app.api.candidateroute import router as candidate_router
 from app.api.reportroute import router as report_router
 from app.api.jobskillsroute import router as jobskill_router
 from app.api.mailroutes import router as mail_router
+from app.api.interview_route import router as interview_router
 app = FastAPI(
     title="AI Avatar Interview API",
     description="Backend API for AI-powered interview system",
@@ -33,6 +34,7 @@ app.include_router(jobskill_router, prefix="/jobsskills", tags=["JobsSkills"])
 app.include_router(report_router, prefix="/report", tags=["Report"])
 app.include_router(candidate_router, prefix="/candidate", tags=["CandidateInfo"])
 app.include_router(mail_router,prefix="/mail",tags=["Mail"])
+app.include_router(interview_router, prefix="/interview", tags=["Interview"])
 @app.get("/")
 async def root():
     return {"message": "AI Avatar Interview API is running"}

@@ -55,4 +55,22 @@ export const interviewAPI = {
     const response = await api.post(`/interviews/${sessionId}/end`);
     return response.data;
   },
+
+  // New interview session management
+  startInterviewSession: async (candidateId) => {
+    const response = await axios.post('http://localhost:8000/interview/start-interview', {
+      candidate_id: candidateId
+    });
+    return response.data;
+  },
+
+  getCurrentSession: async () => {
+    const response = await axios.get('http://localhost:8000/interview/current-session');
+    return response.data;
+  },
+
+  endInterviewSession: async () => {
+    const response = await axios.post('http://localhost:8000/interview/end-interview');
+    return response.data;
+  },
 };
