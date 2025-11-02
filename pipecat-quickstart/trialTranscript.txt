@@ -1,0 +1,9 @@
+[2025-11-02T20:48:51.977+00:00] user: Yeah.
+[2025-11-02T20:48:52.897+00:00] user: Okay. Okay. Okay.
+[2025-11-02T20:48:53.496+00:00] user: On. Hold on. On.
+[2025-11-02T20:48:56.432+00:00] assistant: Hello Sunjeet, I'm glad to connect with you today. I'm an AI interviewer
+[2025-11-02T20:49:01.377+00:00] user: Submit a line one out to you.
+[2025-11-02T20:49:03.172+00:00] assistant: I'm glad to connect with you today, Sunjeet. I'm
+[2025-11-02T20:49:06.557+00:00] user: Yeah. They call yeah. They call
+[2025-11-02T20:49:20.822+00:00] user: Hello. Hello. What what what is my name?
+[2025-11-02T20:49:22.970+00:00] assistant: Your name is Sunjeet.
