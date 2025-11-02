@@ -93,7 +93,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-6xl md:text-7xl font-bold text-gray-800 mb-4 leading-tight"
           >
-            Everything App
+            Everything
             <br />
             <motion.span
               initial={{ opacity: 0 }}

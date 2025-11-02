@@ -3,7 +3,7 @@ echo Starting AI Avatar Interview System...
 
 echo.
 echo Starting RAG Service (WSL)...
-start "RAG" cmd /k "cd pipecat-quickstart/rag && python main.py"
+@REM start "RAG" cmd /k "cd pipecat-quickstart/rag && python main.py"
 
 timeout /t 3 /nobreak > nul
 

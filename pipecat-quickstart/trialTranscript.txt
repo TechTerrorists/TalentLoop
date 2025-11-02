@@ -1,1 +1,1 @@
-[2025-11-02T11:45:01.171+00:00] assistant: Hello John Doe, welcome to TechCorp. I'm looking forward to our discussion today for the Software Engineer position. To start, could you please walk me through your experience with developing and maintaining scalable web applications, particularly highlighting any projects where you've focused on performance and reliability?
+[2025-11-02T12:30:45.722+00:00] assistant: `<div>` and `<span>` elements, and when you would choose one over the other?

@@ -141,14 +141,26 @@ class TranscriptHandler:
 
 async def getdetails(candidateid):
     try:
-            candidatedetails=supabase.table("Candidate_Info").select("").eq("id",candidateid).execute()
+            candidatedetails=supabase.table("Candidate_Info").select("*").eq("id",candidateid).execute()
             companyid=candidatedetails.data[0]["company_id"]
             jobid=candidatedetails.data[0]["jobid"]
-            companydetails=supabase.table("Company").select("").eq("_id",companyid).execute()
-            jobdetails=supabase.table("Candidate_Info").select(",Job_Requirements()").eq("_id",jobid).execute()
+            companydetails=supabase.table("Company").select("*").eq("_id",companyid).execute()
+            # jobdetails=supabase.table("Candidate_Info").select("*,Job_Requirements(*)").eq("_id",jobid).execute()
+            # jobdetails2 = supabase.table("Job_Requirements").select("*,Job_Requirements(*)").eq("job_id",jobid).execute()
+            jobdetails=supabase.table("Job").select("*,Job_Requirements(*)").eq("_id",jobid).execute()
+            
+            jobTitle = jobdetails.data[0]["title"]
+            jobRequirements = jobdetails.data[0]["Job_Requirements"]
+            companyName = companydetails.data[0]['name']
+            candidateName = candidatedetails.data[0]['name']
+            skills = ""
+            for i in jobRequirements:
+                skill = i['skill']
+                skills += skill + ", "
 
-            result=[candidatedetails.data[0],companydetails.data[0],jobdetails.data[0]]
-            return result
+            return f"Candidate Name - {candidateName}, Job title - {jobTitle}, Job Requirements - {jobRequirements}, Company Name - {companyName}, Required skillset to be interviewed on - {skills}"
+
+            
     except Exception as e:
         logger.error(f"Error fetching job skills: {e}")
         return ""
@@ -238,20 +250,21 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         async def on_client_connected(transport, client):
             logger.info(f"Client connected")
             
-            candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
-            company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
-            job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
+            # candidate_name = os.getenv("INTERVIEW_CANDIDATE_NAME", "John Doe")
+            # company_name = os.getenv("INTERVIEW_COMPANY_NAME", "StartupXYZ")
+            # job_title = os.getenv("INTERVIEW_JOB_TITLE", "Full Stack Developer")
             candidate_id = int(os.getenv("CANDIDATE_ID", "2"))
 
             # Fetch job skills
-            relevantContext = getdetails(candidateid=candidate_id)
+            relevantContext = await getdetails(candidateid=candidate_id)
 
             # Set system prompt with job skills
             system_prompt = f"""
-            You are an AI interviewer for {company_name}, conducting a technical interview for a {job_title} position.
-            Relevant context about interviewee and the job posting and requirements is - {relevantContext}
+            You are an AI interviewer , conducting a technical interview for  position.
+            All required relevant context is provided below:
+                {relevantContext}
             
-            Greet the candidate {candidate_name} and begin the interview politely. Focus your questions on the required skills listed above. Ask one question at a time.
+            Greet the candidate with their name and begin the interview politely. Focus your questions on the required skills listed above. Ask one question at a time. Also ask counter questions and questions from their profile.
 
             """
             messages.clear()
