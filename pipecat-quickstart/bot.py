@@ -279,6 +279,29 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         async def on_client_disconnected(transport, client):
             logger.info(f"Client disconnected")
             logger.info(f"Interview transcript: {messages}")
+            
+            # Upload transcript and end interview
+            try:
+                with open('trialTranscript.txt', 'r', encoding='utf-8') as f:
+                    transcript_content = f.read()
+                
+                interview_id = int(os.getenv("INTERVIEW_ID", "87"))
+                
+                # Upload transcript
+                supabase.table('transcripts').insert({
+                    'interview_id': interview_id,
+                    'transcript_data': transcript_content
+                }).execute()
+                
+                # End interview in database
+                supabase.table('interview').update({
+                    'status': 'completed'
+                }).eq('id', interview_id).execute()
+                
+                logger.info(f"Interview {interview_id} completed and transcript uploaded")
+            except Exception as e:
+                logger.error(f"Failed to complete interview: {e}")
+            
             await task.cancel()
 
         runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)

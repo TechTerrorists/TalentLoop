@@ -392,17 +392,31 @@ export default function Dashboard() {
                           <div className="text-sm text-gray-600">Your AI interviewer is waiting</div>
                         </div>
                       </div>
-                      <motion.a
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        href={session.bot_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 w-full justify-center px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:shadow-xl transition-all group"
-                      >
-                        Connect to Interview
-                        <IconExternalLink className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                      </motion.a>
+                      <div className="flex gap-3">
+                        <motion.a
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          href={session.bot_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 flex-1 justify-center px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:shadow-xl transition-all group"
+                        >
+                          Connect to Interview
+                          <IconExternalLink className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        </motion.a>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={async () => {
+                            await interviewAPI.endInterview(session.id);
+                            setSession(null);
+                            loadInterviews();
+                          }}
+                          className="px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-semibold hover:shadow-xl transition-all"
+                        >
+                          End Interview
+                        </motion.button>
+                      </div>
                       <p className="text-xs text-gray-600 mt-3 text-center break-all">
                         {session.bot_url}
                       </p>

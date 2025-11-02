@@ -107,13 +107,13 @@ async def get_interview_analysis(
         if not report or not report.data:
             raise HTTPException(status_code=404, detail="Analysis not found for this interview")
 
-        # Get skill scores separately using report_id
+        data = report.data
+        
+        # Get skill scores separately using interview_id
         skill_scores = db.table("skill score")\
             .select("*")\
-            .eq("report_id", data.get("_id"))\
+            .eq("interview_id", interview_id)\
             .execute()
-
-        data = report.data
         from datetime import datetime
         
         return AnalysisResponse(
