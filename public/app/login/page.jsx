@@ -73,7 +73,7 @@ export default function LoginPage() {
               value={formData.username}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#BCCCDC] focus:border-transparent outline-none transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#BCCCDC] focus:border-transparent outline-none transition-colors placeholder:text-gray-600 text-gray-900"
               placeholder="Enter your email"
             />
           </div>
@@ -89,7 +89,7 @@ export default function LoginPage() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#BCCCDC] focus:border-transparent outline-none transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#BCCCDC] focus:border-transparent outline-none transition-colors placeholder:text-gray-600 text-gray-900"
               placeholder="Enter your password"
             />
           </div>
