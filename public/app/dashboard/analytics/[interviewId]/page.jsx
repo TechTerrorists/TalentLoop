@@ -72,7 +72,7 @@ export default function AnalyticsPage({ params }) {
         </div>
       ) : (
         <>
-          {/* Mock data notice */}
+          {/* Mock data notice
           {usingMockData && (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
@@ -85,8 +85,8 @@ export default function AnalyticsPage({ params }) {
                   </p>
                 </div>
               </div>
-            </div>
-          )}
+            </div> */}
+          {/* )} */}
           <InterviewAnalysisDetails analysisData={analysisData} />
         </>
       )}

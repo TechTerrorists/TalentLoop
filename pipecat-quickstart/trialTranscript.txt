@@ -1,2 +1,7 @@
-[2025-11-02T21:29:00.001+00:00] assistant: Hello Kaustav, welcome to TechCorp Inc. I'm looking forward to our discussion today for the Senior Software Engineer position. To start, could you please tell me a bit about your experience and what you believe makes you a strong candidate for this role?
-[2025-11-02T21:29:18.201+00:00] user: I am a junior developer. I don't know why I'm here.
+[2025-11-03T07:22:15.260+00:00] assistant: Hello Kaustav, welcome to TechCorp Inc.
+[2025-11-03T07:22:40.981+00:00] user: Coding tasks to encompass technical leadership
+[2025-11-03T07:22:45.238+00:00] user: architectural design, and team mentorship. Based on my experience, the most
+[2025-11-03T07:22:47.641+00:00] user: someone in this position
+[2025-11-03T07:22:50.756+00:00] user: are driving technical direction
+[2025-11-03T07:22:54.828+00:00] user: problem solving and troubleshooting, ensuring quality and best practices.
+[2025-11-03T07:22:57.388+00:00] assistant: That's a great overview of your strengths
