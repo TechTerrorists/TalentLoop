@@ -27,4 +27,4 @@ class AnalysisResponse(BaseModel):
     sentiment: Dict[str, Any]
     key_strengths: List[str]
     areas_for_improvement: List[str]
-    created_at: datetime
+    created_at: datetime = Field(default_factory=datetime.utcnow)
