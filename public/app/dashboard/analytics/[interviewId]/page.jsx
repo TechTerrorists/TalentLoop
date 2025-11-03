@@ -19,17 +19,85 @@ export default function AnalyticsPage({ params }) {
       try {
         setLoading(true);
         setError(null);
-        // Fetch analysis data from API
-        const response = await interviewAPI.getInterviewAnalysis(interviewId);
-        setAnalysisData(response.data);
+        
+        // Fetch from Supabase directly
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        );
+        
+        // Get report data
+        const { data: reportData, error: reportError } = await supabase
+          .from('Report')
+          .select('*')
+          .eq('interview_id', interviewId);
+        
+        if (reportError) throw reportError;
+        if (!reportData || reportData.length === 0) throw new Error('No analysis found');
+        
+        const report = reportData[0];
+        
+        // Get skill scores
+        const { data: skillScores } = await supabase
+          .from('skill score')
+          .select('*')
+          .eq('interview_id', interviewId);
+        
+        // Format data to match InterviewAnalysisDetails structure
+        setAnalysisData({
+          evaluation_summary: {
+            overall_score: report.overallscore || 0,
+            recommendation: report.recommendation || 'N/A',
+            overall_summary: report.areasOfImprovement || 'Analysis completed',
+            recommendation_rationale: report.areasOfImprovement || 'Based on interview performance'
+          },
+          detailed_scoring: [
+            {
+              category: 'Communication',
+              description: 'Clarity and effectiveness of communication',
+              score: report.communication || 0,
+              rationale: 'Assessment based on verbal communication skills',
+              evidence: report.evidence?.filter(e => e.category === 'Communication').map(e => e.quote) || []
+            },
+            {
+              category: 'Professionalism',
+              description: 'Professional conduct and demeanor',
+              score: report.professionalism || 0,
+              rationale: 'Assessment based on professional behavior',
+              evidence: []
+            },
+            {
+              category: 'Positive Attitude',
+              description: 'Enthusiasm and positive engagement',
+              score: report.positiveAttitude || 0,
+              rationale: 'Assessment based on attitude and engagement',
+              evidence: []
+            },
+            {
+              category: 'Technical Depth',
+              description: 'Technical knowledge and expertise',
+              score: report.technicalDepth || 0,
+              rationale: 'Assessment based on technical competency',
+              evidence: report.evidence?.filter(e => e.category === 'Technical Depth').map(e => e.quote) || []
+            },
+            {
+              category: 'Response Quality',
+              description: 'Quality and relevance of responses',
+              score: report.responseQuality || 0,
+              rationale: 'Assessment based on answer quality',
+              evidence: []
+            }
+          ],
+          qualitative_analysis: {
+            key_strengths: Array.isArray(report.keyStrengths) ? report.keyStrengths : [],
+            areas_for_improvement: report.areasOfImprovement ? report.areasOfImprovement.split(',').map(s => s.trim()) : []
+          }
+        });
         setUsingMockData(false);
       } catch (err) {
         console.error('Error fetching analysis:', err);
-        console.log('Falling back to mock data for demonstration purposes');
-        // Fall back to mock data for development/testing
-        setAnalysisData(mockAnalysisData);
-        setUsingMockData(true);
-        setError(null); // Clear error since we have fallback data
+        setError(err.message);
       } finally {
         setLoading(false);
       }

@@ -67,7 +67,13 @@ export const interviewAPI = {
   },
 
   getInterviewAnalysis: async (interviewId) => {
-    const response = await api.get(`/interview/${interviewId}/analysis`);
-    return response;
+    try {
+      const response = await api.get(`/interview/${interviewId}/analysis`);
+      console.log('Analysis API Response:', response);  // Debug log
+      return response;
+    } catch (error) {
+      console.error('Analysis API Error:', error.response || error);  // Debug log
+      throw error;
+    }
   },
 };

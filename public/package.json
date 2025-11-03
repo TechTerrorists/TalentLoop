@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@daily-co/daily-js": "^0.55.0",
+    "@supabase/supabase-js": "^2.78.0",
     "@tabler/icons-react": "^3.35.0",
     "axios": "^1.6.0",
     "clsx": "^2.1.1",
