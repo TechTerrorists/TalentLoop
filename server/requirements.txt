@@ -8,9 +8,9 @@ websockets==15.0.1
 # pipecat-ai==0.0.45
 
 # AI/ML services
-google-generativeai==0.3.2
-deepgram-sdk==3.2.7
-elevenlabs==0.2.26
+# google-generativeai==0.3.2
+# deepgram-sdk==3.2.7
+# elevenlabs==0.2.26
 
 # Database
 supabase==2.18.1
