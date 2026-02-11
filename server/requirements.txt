@@ -1,7 +1,7 @@
 # FastAPI and core dependencies
 fastapi==0.116.1
 uvicorn==0.37.0
-python-multipart==0.0.20
+python-multipart==0.0.22
 websockets==15.0.1
 
 # Pipecat for AI conversation
